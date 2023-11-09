@@ -13,7 +13,7 @@ The indexer fetches raw data from the Tezos blockchain, processes it, and saves 
 - **Data quality comes first!** You will never see an incorrect account balance, or contract storage, or missed operations, etc. TzKT was built by professionals who know Tezos from A to Z (or from tz to KT 😼).
 - **Advanced API.** TzKT provides a REST-like API, so you don't have to connect to the database directly (but you can, if you want). In addition to basic data access TzKT API has a lot of cool features such as "deep filtering", "deep selection", "deep sorting", exporting .csv statements, calculating historical data (at some block in the past) such as balances, storages, and bigmap keys, injecting historical quotes and metadata, built-in response cache, and much more. See the complete [API documentation](https://api.tzkt.io).
 - **WebSocket API.** TzKT allows to subscribe to real-time blockchain data, such as new blocks or new operations, etc. via WebSocket. TzKT uses SignalR, which is very easy to use and for which there are many client libraries for different languages.
-- **No local node needed.** There is no need to run your own local node. Also, the indexer does not create much load on the node RPC, so it's ok to use any public one. By default it uses [rpc.tzkt.io](https://rpc.tzkt.io/mainnet/chains/main/blocks/head/header).
+- **No local node needed.** There is no need to run your own local node. Also, the indexer does not create much load on the node RPC, so it's ok to use any public one. By default it uses [rpc.tzkt.io](https://basenet-baking-node.mavryk.network/chains/main/blocks/head/header).
 - **No archive node needed.** There is no need to use an archive node (running in "archive" mode). If you bootstrap the indexer from the most recent snapshot, using a simple rolling node will be enough.
 - **Easy to start.** Indexer bootstrap is very simple and quite fast, because you can easily restore it from a fresh snapshot, publicly available for all supported networks, so you don't need to index the whole blockchain from scratch. But of course, you can do that, if you want.
 - **Validation and diagnostics.** TzKT indexer validates all incoming data so you will never get to the wrong chain and will never commit corrupted data because of invalid response from the node. Also, the indexer performs self-diagnostics after each block, which guarantees the correctness of its state after committing new data.
@@ -117,12 +117,12 @@ dotnet publish -o ~/tzkt-sync
 
 #### Configure indexer (example for mainnet)
 
-Edit the configuration file `~/tzkt-sync/appsettings.json`. What you basically need is to adjust the `TezosNode.Endpoint` and `ConnectionStrings.DefaultConnection`, if needed:
+Edit the configuration file `~/tzkt-sync/appsettings.json`. What you basically need is to adjust the `MavrykNode.Endpoint` and `ConnectionStrings.DefaultConnection`, if needed:
 
 ````json
 {
-  "TezosNode": {
-    "Endpoint": "https://rpc.tzkt.io/mainnet/"
+  "MavrykNode": {
+    "Endpoint": "https://basenet-baking-node.mavryk.network/"
   },
   "ConnectionStrings": {
     "DefaultConnection": "host=localhost;port=5432;database=tzkt_db;username=tzkt;password=qwerty;command timeout=600;"
@@ -134,11 +134,11 @@ Edit the configuration file `~/tzkt-sync/appsettings.json`. What you basically n
 
 ##### Chain reorgs and indexing lag
 
-To avoid reorgs (chain reorganizations) you can set the indexing lag `TezosNode.Lag` (1-2 blocks lag is enough):
+To avoid reorgs (chain reorganizations) you can set the indexing lag `MavrykNode.Lag` (1-2 blocks lag is enough):
 
 ````json
 {
-  "TezosNode": {
+  "MavrykNode": {
     "Lag": 1
   }
 }
@@ -211,12 +211,12 @@ The API provides RPC helpers - endpoints proxied directly to the node RPC, speci
 {
    "RpcHelpers": {
       "Enabled": true,
-      "Endpoint": "https://rpc.tzkt.io/mainnet/"
+      "Endpoint": "https://basenet-baking-node.mavryk.network/"
    }
 }
 `````
 
-Please, notice, the API's `RpcHelpers.Endpoint` must point to the same network (with the same `chain_id`) as `TezosNode.Endpoint` in the indexer. Otherwise, an exception will be thrown.
+Please, notice, the API's `RpcHelpers.Endpoint` must point to the same network (with the same `chain_id`) as `MavrykNode.Endpoint` in the indexer. Otherwise, an exception will be thrown.
 
 ##### Collect metrics
 
@@ -254,15 +254,9 @@ That's it. If you want to run the API as a daemon, take a look at this guide: ht
 ## Install Tzkt Indexer and API for testnets
 
 In general the steps are the same as for the mainnet, you will just need to use a different RPC endpoint and DB snapshot. Here are presets for the current testnets:
- - Ghostnet:
-   - Snapshot: https://snapshots.tzkt.io/tzkt_v1.12_ghostnet.backup
-   - RPC node: https://rpc.tzkt.io/ghostnet/
- - Mumbainet:
-   - Snapshot: https://snapshots.tzkt.io/tzkt_v1.12_mumbainet.backup
-   - RPC node: https://rpc.tzkt.io/mumbainet/
- - Nairobinet:
-   - Snapshot: https://snapshots.tzkt.io/tzkt_v1.12_nairobinet.backup
-   - RPC node: https://rpc.tzkt.io/nairobinet/
+ - Basenet:
+   - Snapshot: 
+   - RPC node: https://basenet-baking-node.mavryk.network/
 
 ### Testnets & docker
 
@@ -272,9 +266,9 @@ First of all, install `git`, `make`, `docker`, `docker-compose`, then run the fo
 git clone https://github.com/baking-bad/tzkt.git
 cd tzkt/
 
-make ghost-init  # Restores DB from the latest snapshot. Skip it, if you want to index from scratch.
-make ghost-start # Starts DB, indexer, and API. By default, the API will be available at http://127.0.0.1:5010.
-make ghost-stop  # Stops DB, indexer, and API.
+make basenet-init  # Restores DB from the latest snapshot. Skip it, if you want to index from scratch.
+make basenet-start # Starts DB, indexer, and API. By default, the API will be available at http://127.0.0.1:5010.
+make basenet-stop  # Stops DB, indexer, and API.
 ````
 
 ## Have a question?

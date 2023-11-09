@@ -17,7 +17,7 @@ services:
   api:
     container_name: tzkt-api
     restart: always
-    image: bakingbad/tzkt-api:latest
+    image: mavrykdynamics/tzkt-api:latest
     depends_on:
       - db
     environment:
@@ -29,11 +29,11 @@ services:
   sync:
     container_name: tzkt-sync
     restart: always
-    image: bakingbad/tzkt-sync:latest
+    image: mavrykdynamics/tzkt-sync:latest
     environment:
       ConnectionStrings__DefaultConnection: host=db;port=5432;database=${POSTGRES_DB:-tzkt_db};username=${POSTGRES_USER:-tzkt};password=${POSTGRES_PASSWORD:-qwerty};command timeout=${COMMAND_TIMEOUT:-600};
       Kestrel__Endpoints__Http__Url: http://0.0.0.0:5001
-      TezosNode__Endpoint: ${NODE_RPC:-https://rpc.tzkt.io/mainnet/}
+      MavrykNode__Endpoint: ${NODE_RPC:-https://basenet.mavryk.network/}
     depends_on:
       - db
     ports:

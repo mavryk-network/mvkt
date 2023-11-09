@@ -2,9 +2,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Netezos.Encoding;
-using Netezos.Keys;
-using Netezos.Utils;
+using Netmavryk.Encoding;
+using Netmavryk.Keys;
+using Netmavryk.Utils;
 using Tzkt.Api.Services.Auth;
 using Xunit;
 

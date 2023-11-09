@@ -1,5 +1,5 @@
 ﻿using Blake2Fast;
-using Netezos.Encoding;
+using Netmavryk.Encoding;
 
 namespace Tzkt.Sync.Protocols
 {

@@ -5,9 +5,7 @@ TzKT is an open-source project, so you can easily clone and build it and use it 
 
 TzKT API is available for the following Tezos networks with the following base URLs: 
 
-- Mainnet: `https://api.tzkt.io/` or `https://api.mainnet.tzkt.io/` ([view docs](https://api.tzkt.io)) 
-- Ghostnet: `https://api.ghostnet.tzkt.io/` ([view docs](https://api.ghostnet.tzkt.io))
-- Nairobinet: `https://api.nairobinet.tzkt.io/` ([view docs](https://api.nairobinet.tzkt.io))
+- Mainnet: `https://api.mavryk.network/` ([view docs](https://api.tzkt.io)) 
 
 We also provide a staging environment for testing newest features and pre-updating client applications before deploying to production:
 

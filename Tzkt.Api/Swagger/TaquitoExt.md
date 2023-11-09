@@ -14,7 +14,7 @@ In order to enable routing enable the TzKT extension per each `TezosToolkit` ins
 import { TezosToolkit } from '@taquito/taquito';
 import { TzktExtension } from '@tzkt/ext-taquito';
 
-const Tezos = new TezosToolkit('https://rpc.tzkt.io/mainnet');
+const Tezos = new TezosToolkit('https://basenet-baking-node.mavryk.network');
 Tezos.addExtension(new TzktExtension());
 ```
 

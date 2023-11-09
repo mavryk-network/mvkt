@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
-using Netezos.Encoding;
-using Netezos.Keys;
-using Netezos.Utils;
+using Netmavryk.Encoding;
+using Netmavryk.Keys;
+using Netmavryk.Utils;
 
 namespace Tzkt.Api.Services.Auth
 {

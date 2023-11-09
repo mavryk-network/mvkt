@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  basenet-db:
+    container_name: basenet-db
+    restart: always
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tzkt}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-qwerty}
+      POSTGRES_DB: ${POSTGRES_DB:-tzkt_db}
+    volumes:
+      - basenet-postgres:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5434:5432
+
+  basenet-api:
+    container_name: basenet-api
+    restart: always
+    image: mavrykdynamics/tzkt-api:latest
+    depends_on:
+      - basenet-db
+    environment:
+      ConnectionStrings__DefaultConnection: host=basenet-db;port=5432;database=${POSTGRES_DB:-tzkt_db};username=${POSTGRES_USER:-tzkt};password=${POSTGRES_PASSWORD:-qwerty};command timeout=${COMMAND_TIMEOUT:-600};
+      Kestrel__Endpoints__Http__Url: http://0.0.0.0:5000
+    ports:
+      - 0.0.0.0:5020:5000
+
+  basenet-sync:
+    container_name: basenet-sync
+    restart: always
+    image: mavrykdynamics/tzkt-sync:latest
+    environment:
+      ConnectionStrings__DefaultConnection: host=basenet-db;port=5432;database=${POSTGRES_DB:-tzkt_db};username=${POSTGRES_USER:-tzkt};password=${POSTGRES_PASSWORD:-qwerty};command timeout=${COMMAND_TIMEOUT:-600};
+      Kestrel__Endpoints__Http__Url: http://0.0.0.0:5001
+      MavrykNode__Endpoint: https://basenet-baking-node.mavryk.network/
+      Protocols__Diagnostics: false
+    depends_on:
+      - basenet-db
+    ports:
+      - 0.0.0.0:5021:5001
+
+volumes:
+  basenet-postgres:

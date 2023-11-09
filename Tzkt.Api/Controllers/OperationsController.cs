@@ -836,7 +836,7 @@ namespace Tzkt.Api.Controllers
         /// <remarks>
         /// Returns a list of double baking operations.
         /// </remarks>
-        /// <param name="anyof">Filters double baking operations by any of the specified fields. Example: `anyof.accuser.offender=tz1...` will return operations where `accuser` OR `offender` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
+        /// <param name="anyof">Filters double baking operations by any of the specified fields. Example: `anyof.accuser.offender=mv1...` will return operations where `accuser` OR `offender` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
         /// <param name="accuser">Filters double baking operations by accuser. Allowed fields for `.eqx` mode: `offender`.</param>
         /// <param name="offender">Filters double baking operations by offender. Allowed fields for `.eqx` mode: `accuser`.</param>
         /// <param name="level">Filters double baking operations by level.</param>
@@ -997,7 +997,7 @@ namespace Tzkt.Api.Controllers
         /// <remarks>
         /// Returns a list of double endorsing operations.
         /// </remarks>
-        /// <param name="anyof">Filters double endorsing operations by any of the specified fields. Example: `anyof.accuser.offender=tz1...` will return operations where `accuser` OR `offender` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
+        /// <param name="anyof">Filters double endorsing operations by any of the specified fields. Example: `anyof.accuser.offender=mv1...` will return operations where `accuser` OR `offender` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
         /// <param name="accuser">Filters double endorsing operations by accuser. Allowed fields for `.eqx` mode: `offender`.</param>
         /// <param name="offender">Filters double endorsing operations by offender. Allowed fields for `.eqx` mode: `accuser`.</param>
         /// <param name="level">Filters double endorsing operations by level.</param>
@@ -1158,7 +1158,7 @@ namespace Tzkt.Api.Controllers
         /// <remarks>
         /// Returns a list of double preendorsing operations.
         /// </remarks>
-        /// <param name="anyof">Filters by any of the specified fields. Example: `anyof.accuser.offender=tz1...` will return operations where `accuser` OR `offender` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
+        /// <param name="anyof">Filters by any of the specified fields. Example: `anyof.accuser.offender=mv1...` will return operations where `accuser` OR `offender` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
         /// <param name="accuser">Filters by accuser. Allowed fields for `.eqx` mode: `offender`.</param>
         /// <param name="offender">Filters by offender. Allowed fields for `.eqx` mode: `accuser`.</param>
         /// <param name="level">Filters by level.</param>
@@ -1319,7 +1319,7 @@ namespace Tzkt.Api.Controllers
         /// <remarks>
         /// Returns a list of seed nonce revelation operations.
         /// </remarks>
-        /// <param name="anyof">Filters nonce revelation operations by any of the specified fields. Example: `anyof.baker.sender=tz1...` will return operations where `baker` OR `sender` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
+        /// <param name="anyof">Filters nonce revelation operations by any of the specified fields. Example: `anyof.baker.sender=mv1...` will return operations where `baker` OR `sender` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
         /// <param name="baker">Filters nonce revelation operations by baker. Allowed fields for `.eqx` mode: `sender`.</param>
         /// <param name="sender">Filters nonce revelation operations by sender. Allowed fields for `.eqx` mode: `baker`.</param>
         /// <param name="level">Filters nonce revelation operations by level.</param>
@@ -1618,7 +1618,7 @@ namespace Tzkt.Api.Controllers
         /// <remarks>
         /// Returns a list of drain delegate operations.
         /// </remarks>
-        /// <param name="anyof">Filters by any of the specified fields. Example: `anyof.delegate.target=tz1...` will return operations where `delegate` OR `target` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
+        /// <param name="anyof">Filters by any of the specified fields. Example: `anyof.delegate.target=mv1...` will return operations where `delegate` OR `target` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
         /// <param name="delegate">Filters by drained baker. Allowed fields for `.eqx` mode: none.</param>
         /// <param name="target">Filters by target. Allowed fields for `.eqx` mode: none.</param>
         /// <param name="level">Filters by level.</param>
@@ -1770,7 +1770,7 @@ namespace Tzkt.Api.Controllers
         /// <remarks>
         /// Returns a list of delegation operations.
         /// </remarks>
-        /// <param name="anyof">Filters delegations by any of the specified fields. Example: `anyof.prevDelegate.newDelegate=tz1...` will return operations where `prevDelegate` OR `newDelegate` is equal to the specified value. This parameter is useful when you need to retrieve all delegations associated with a specified account.</param>
+        /// <param name="anyof">Filters delegations by any of the specified fields. Example: `anyof.prevDelegate.newDelegate=mv1...` will return operations where `prevDelegate` OR `newDelegate` is equal to the specified value. This parameter is useful when you need to retrieve all delegations associated with a specified account.</param>
         /// <param name="initiator">Filters delegations by initiator. Allowed fields for `.eqx` mode: `prevDelegate`, `newDelegate`.</param>
         /// <param name="sender">Filters delegations by sender. Allowed fields for `.eqx` mode: `prevDelegate`, `newDelegate`.</param>
         /// <param name="prevDelegate">Filters delegations by prev delegate. Allowed fields for `.eqx` mode: `initiator`, `sender`, `newDelegate`.</param>
@@ -1983,7 +1983,7 @@ namespace Tzkt.Api.Controllers
         /// <remarks>
         /// Returns a list of origination operations.
         /// </remarks>
-        /// <param name="anyof">Filters originations by any of the specified fields. Example: `anyof.sender.initiator=tz1...` will return operations where `sender` OR `initiator` is equal to the specified value. This parameter is useful when you need to retrieve all originations associated with a specified account.</param>
+        /// <param name="anyof">Filters originations by any of the specified fields. Example: `anyof.sender.initiator=mv1...` will return operations where `sender` OR `initiator` is equal to the specified value. This parameter is useful when you need to retrieve all originations associated with a specified account.</param>
         /// <param name="initiator">Filters origination operations by initiator. Allowed fields for `.eqx` mode: `contractManager`, `contractDelegate`.</param>
         /// <param name="sender">Filters origination operations by sender. Allowed fields for `.eqx` mode: `contractManager`, `contractDelegate`.</param>
         /// <param name="contractManager">Filters origination operations by manager. Allowed fields for `.eqx` mode: `initiator`, `sender`, `contractDelegate`.</param>
@@ -2225,7 +2225,7 @@ namespace Tzkt.Api.Controllers
         /// <remarks>
         /// Returns a list of transaction operations.
         /// </remarks>
-        /// <param name="anyof">Filters transactions by any of the specified fields. Example: `anyof.sender.target=tz1...` will return operations where `sender` OR `target` is equal to the specified value. This parameter is useful when you need to retrieve all transactions associated with a specified account.</param>
+        /// <param name="anyof">Filters transactions by any of the specified fields. Example: `anyof.sender.target=mv1...` will return operations where `sender` OR `target` is equal to the specified value. This parameter is useful when you need to retrieve all transactions associated with a specified account.</param>
         /// <param name="initiator">Filters transactions by initiator. Allowed fields for `.eqx` mode: `target`.</param>
         /// <param name="sender">Filters transactions by sender. Allowed fields for `.eqx` mode: `target`.</param>
         /// <param name="target">Filters transactions by target. Allowed fields for `.eqx` mode: `sender`, `initiator`.</param>
@@ -2478,7 +2478,7 @@ namespace Tzkt.Api.Controllers
         /// <remarks>
         /// Returns the total number of transaction operations.
         /// </remarks>
-        /// <param name="anyof">Filters transactions by any of the specified fields. Example: `anyof.sender.target=tz1...` will return operations where `sender` OR `target` is equal to the specified value. This parameter is useful when you need to retrieve all transactions associated with a specified account.</param>
+        /// <param name="anyof">Filters transactions by any of the specified fields. Example: `anyof.sender.target=mv1...` will return operations where `sender` OR `target` is equal to the specified value. This parameter is useful when you need to retrieve all transactions associated with a specified account.</param>
         /// <param name="initiator">Filters transactions by initiator. Allowed fields for `.eqx` mode: `target`.</param>
         /// <param name="sender">Filters transactions by sender. Allowed fields for `.eqx` mode: `target`.</param>
         /// <param name="target">Filters transactions by target. Allowed fields for `.eqx` mode: `sender`, `initiator`.</param>
@@ -3015,7 +3015,7 @@ namespace Tzkt.Api.Controllers
         /// <remarks>
         /// Returns a list of transfer ticket operations.
         /// </remarks>
-        /// <param name="anyof">Filters by any of the specified fields. Example: `anyof.sender.target=tz1...` will return operations where `sender` OR `target` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
+        /// <param name="anyof">Filters by any of the specified fields. Example: `anyof.sender.target=mv1...` will return operations where `sender` OR `target` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
         /// <param name="sender">Filters by sender. Allowed fields for `.eqx` mode: none.</param>
         /// <param name="target">Filters by target. Allowed fields for `.eqx` mode: none.</param>
         /// <param name="id">Filters by id.</param>
@@ -3759,7 +3759,7 @@ namespace Tzkt.Api.Controllers
         /// <remarks>
         /// Returns a list of tx rollup rejection operations.
         /// </remarks>
-        /// <param name="anyof">Filters by any of the specified fields. Example: `anyof.sender.committer=tz1...` will return operations where `sender` OR `committer` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
+        /// <param name="anyof">Filters by any of the specified fields. Example: `anyof.sender.committer=mv1...` will return operations where `sender` OR `committer` is equal to the specified value. This parameter is useful when you need to retrieve all operations associated with a specified account.</param>
         /// <param name="sender">Filters by sender. Allowed fields for `.eqx` mode: none.</param>
         /// <param name="committer">Filters by committer. Allowed fields for `.eqx` mode: none.</param>
         /// <param name="rollup">Filters by rollup. Allowed fields for `.eqx` mode: none.</param>
@@ -5317,7 +5317,7 @@ namespace Tzkt.Api.Controllers
         /// Returns a list of baking operations (synthetic type).
         /// </remarks>
         /// <param name="baker">[DEPRECATED]</param>
-        /// <param name="anyof">Filters by any of the specified fields. Example: `anyof.proposer.producer=tz1...`.</param>
+        /// <param name="anyof">Filters by any of the specified fields. Example: `anyof.proposer.producer=mv1...`.</param>
         /// <param name="proposer">Filters by block proposer. Allowed fields for `.eqx` mode: none.</param>
         /// <param name="producer">Filters by block producer. Allowed fields for `.eqx` mode: none.</param>
         /// <param name="level">Filters baking operations by level.</param>

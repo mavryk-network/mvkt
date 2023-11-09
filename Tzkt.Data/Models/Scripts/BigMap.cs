@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Netezos.Contracts;
-using Netezos.Encoding;
+using Netmavryk.Contracts;
+using Netmavryk.Encoding;
 
 namespace Tzkt.Data.Models
 {

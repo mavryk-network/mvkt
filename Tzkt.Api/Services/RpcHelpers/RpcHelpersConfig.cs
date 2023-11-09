@@ -5,7 +5,7 @@ namespace Tzkt.Api.Services
     public class RpcHelpersConfig
     {
         public bool Enabled { get; set; } = false;
-        public string Endpoint { get; set; } = "https://rpc.tzkt.io/mainnet";
+        public string Endpoint { get; set; } = "https://basenet-baking-node.mavryk.network";
         public int Timeout { get; set; } = 60;
     }
 

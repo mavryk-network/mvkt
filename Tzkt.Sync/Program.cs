@@ -30,8 +30,8 @@ builder.Services.AddDbContext<TzktContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddCaches();
-builder.Services.AddTezosNode();
-builder.Services.AddTezosProtocols();
+builder.Services.AddMavrykNode();
+builder.Services.AddMavrykProtocols();
 builder.Services.AddQuotes(builder.Configuration);
 builder.Services.AddHostedService<Observer>();
 

@@ -16,7 +16,7 @@ namespace Tzkt.Api
         /// **Equal** filter mode (optional, i.e. `param.eq=123` is the same as `param=123`). \
         /// Specify a JSON value to get items where the specified field is equal to the specified value.
         /// 
-        /// Example: `?parameter.from=tz1...` or `?parameter.signatures.[3].[0]=null` or `?parameter.sigs.[*]=null`.
+        /// Example: `?parameter.from=mv1...` or `?parameter.signatures.[3].[0]=null` or `?parameter.sigs.[*]=null`.
         /// </summary>
         [JsonSchemaType(typeof(string))]
         [JsonSchemaExtensionData("x-tzkt-extension", "json-parameter")]
@@ -110,7 +110,7 @@ namespace Tzkt.Api
         /// **In list** (any of) filter mode. \
         /// Specify a comma-separated list of strings or JSON array to get items where the specified field is equal to one of the specified values. \
         /// 
-        /// Example: `?parameter.amount.in=1,2,3` or `?parameter.in=[{"from":"tz1","to":"tz2"},{"from":"tz2","to":"tz1"}]`.
+        /// Example: `?parameter.amount.in=1,2,3` or `?parameter.in=[{"from":"mv1","to":"mv2"},{"from":"mv2","to":"mv1"}]`.
         /// </summary>
         [JsonSchemaType(typeof(List<string>))]
         [JsonSchemaExtensionData("x-tzkt-extension", "json-parameter")]
@@ -121,7 +121,7 @@ namespace Tzkt.Api
         /// Specify a comma-separated list of strings to get items where the specified field is not equal to all the specified values. \
         /// Use `\,` as an escape symbol.
         /// 
-        /// Example: `?parameter.amount.ni=1,2,3` or `?parameter.ni=[{"from":"tz1","to":"tz2"},{"from":"tz2","to":"tz1"}]`.
+        /// Example: `?parameter.amount.ni=1,2,3` or `?parameter.ni=[{"from":"mv1","to":"mv2"},{"from":"mv2","to":"mv1"}]`.
         /// </summary>
         [JsonSchemaType(typeof(List<string>))]
         [JsonSchemaExtensionData("x-tzkt-extension", "json-parameter")]

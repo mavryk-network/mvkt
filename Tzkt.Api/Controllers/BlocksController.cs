@@ -47,7 +47,7 @@ namespace Tzkt.Api.Controllers
         /// Returns a list of blocks.
         /// </remarks>
         /// <param name="baker">[DEPRECATED]</param>
-        /// <param name="anyof">Filters by any of the specified fields. Example: `anyof.proposer.producer=tz1...`.</param>
+        /// <param name="anyof">Filters by any of the specified fields. Example: `anyof.proposer.producer=mv1...`.</param>
         /// <param name="proposer">Filters blocks by block proposer. Allowed fields for `.eqx` mode: none.</param>
         /// <param name="producer">Filters blocks by block producer. Allowed fields for `.eqx` mode: none.</param>
         /// <param name="level">Filters blocks by level.</param>

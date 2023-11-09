@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using Netezos.Encoding;
+using Netmavryk.Encoding;
 using NJsonSchema.Annotations;
 
 namespace Tzkt.Api

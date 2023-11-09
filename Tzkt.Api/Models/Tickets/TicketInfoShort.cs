@@ -1,4 +1,4 @@
-﻿using Netezos.Encoding;
+﻿using Netmavryk.Encoding;
 using NJsonSchema.Annotations;
 
 namespace Tzkt.Api.Models

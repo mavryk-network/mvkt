@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Netezos.Contracts;
-using Netezos.Encoding;
-using Netezos.Keys;
+using Netmavryk.Contracts;
+using Netmavryk.Encoding;
+using Netmavryk.Keys;
 using Newtonsoft.Json.Linq;
 using Tzkt.Data.Models;
 
@@ -40,7 +40,7 @@ namespace Tzkt.Sync.Protocols.Proto1
             #endregion
 
             #region bootstrap bakers
-            foreach (var (pubKey, balance, _) in bootstrapAccounts.Where(x => x.Item1[0] != 't' && x.Item3 == null))
+            foreach (var (pubKey, balance, _) in bootstrapAccounts.Where(x => x.Item1[0] != 'm' && x.Item3 == null))
             {
                 var baker = new Data.Models.Delegate
                 {
@@ -65,7 +65,7 @@ namespace Tzkt.Sync.Protocols.Proto1
             #endregion
 
             #region bootstrap delegated users
-            foreach (var (pubKey, balance, delegateTo) in bootstrapAccounts.Where(x => x.Item1[0] != 't' && x.Item3 != null))
+            foreach (var (pubKey, balance, delegateTo) in bootstrapAccounts.Where(x => x.Item1[0] != 'm' && x.Item3 != null))
             {
                 var delegat = Cache.Accounts.GetDelegate(delegateTo);
 
@@ -95,7 +95,7 @@ namespace Tzkt.Sync.Protocols.Proto1
             #endregion
 
             #region bootstrap users
-            foreach (var (pkh, balance, _) in bootstrapAccounts.Where(x => x.Item1[0] == 't'))
+            foreach (var (pkh, balance, _) in bootstrapAccounts.Where(x => x.Item1[0] == 'm'))
             {
                 var user = new User
                 {

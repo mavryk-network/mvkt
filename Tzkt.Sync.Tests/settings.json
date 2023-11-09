@@ -5,8 +5,8 @@
   "ConnectionStrings": {
     "DefaultConnection": "host=db;port=5432;database=tzkt_db;username=tzkt;password=qwerty;command timeout=0;"
   },
-  "TezosNode": {
-    "Endpoint": "https://rpc.tzkt.io/mainnet/"
+  "MavrykNode": {
+    "Endpoint": "https://basenet-baking-node.mavryk.network/"
   },
   "Protocols": {
     "Diagnostics": true,

@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Netezos.Encoding;
+using Netmavryk.Encoding;
 using Tzkt.Data.Models;
 using Tzkt.Data.Models.Base;
 
@@ -584,7 +584,7 @@ namespace Tzkt.Sync.Protocols.Proto5
         {
             if (!Cache.Accounts.TryGetCached(address, out var account))
             {
-                account = address[0] == 't' && address[1] == 'z'
+                account = address[0] == 'm' && address[1] == 'v'
                     ? new User
                     {
                         Id = Cache.AppState.NextAccountId(),
