@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Tzkt.Data.Models;
 
 namespace Tzkt.Sync.Protocols.Proto12
@@ -12,19 +11,19 @@ namespace Tzkt.Sync.Protocols.Proto12
         {
             #region init
             var balanceUpdates = content.Required("metadata").RequiredArray("balance_updates").EnumerateArray();
-            var freezerUpdate = balanceUpdates.FirstOrDefault(x => x.RequiredString("kind") == "freezer" && x.RequiredString("category") == "deposits");
-            var contractUpdate = balanceUpdates.FirstOrDefault(x => x.RequiredString("kind") == "contract");
+            var freezerUpdates = balanceUpdates.Where(x => x.RequiredString("kind") == "freezer" && x.RequiredString("category") == "deposits");
+            var contractUpdates = balanceUpdates.Where(x => x.RequiredString("kind") == "contract");
 
-            var offenderAddr = freezerUpdate.ValueKind != JsonValueKind.Undefined
-                ? freezerUpdate.RequiredString("delegate")
+            var offenderAddr = freezerUpdates.Any()
+                ? freezerUpdates.First().RequiredString("delegate")
                 : block.Proposer.Address; // this is wrong, but no big deal
 
-            var offenderLoss = freezerUpdate.ValueKind != JsonValueKind.Undefined
-                ? -freezerUpdate.RequiredInt64("change")
+            var offenderLoss = freezerUpdates.Any()
+                ? -freezerUpdates.Sum(x => x.RequiredInt64("change"))
                 : 0;
 
-            var accuserReward = contractUpdate.ValueKind != JsonValueKind.Undefined
-                ? contractUpdate.RequiredInt64("change")
+            var accuserReward = contractUpdates.Any()
+                ? contractUpdates.Sum(x => x.RequiredInt64("change"))
                 : 0;
 
             var doublePreendorsing = new DoublePreendorsingOperation
@@ -40,7 +39,7 @@ namespace Tzkt.Sync.Protocols.Proto12
                 Offender = Cache.Accounts.GetDelegate(offenderAddr),
 
                 AccuserReward = accuserReward,
-                OffenderLoss = offenderLoss
+                OffenderLossOwn = offenderLoss
             };
             #endregion
 
@@ -55,14 +54,16 @@ namespace Tzkt.Sync.Protocols.Proto12
             accuser.Balance += doublePreendorsing.AccuserReward;
             accuser.StakingBalance += doublePreendorsing.AccuserReward;
 
-            offender.Balance -= doublePreendorsing.OffenderLoss;
-            offender.FrozenDeposit -= doublePreendorsing.OffenderLoss;
-            offender.StakingBalance -= doublePreendorsing.OffenderLoss;
+            offender.Balance -= doublePreendorsing.OffenderLossOwn;
+            offender.StakingBalance -= doublePreendorsing.OffenderLossOwn;
 
             accuser.DoublePreendorsingCount++;
             if (offender != accuser) offender.DoublePreendorsingCount++;
 
             block.Operations |= Operations.DoublePreendorsings;
+
+            Cache.Statistics.Current.TotalBurned += doublePreendorsing.OffenderLossOwn - doublePreendorsing.AccuserReward;
+            Cache.Statistics.Current.TotalFrozen -= doublePreendorsing.OffenderLossOwn;
             #endregion
 
             Db.DoublePreendorsingOps.Add(doublePreendorsing);
@@ -89,9 +90,8 @@ namespace Tzkt.Sync.Protocols.Proto12
             accuser.Balance -= doublePreendorsing.AccuserReward;
             accuser.StakingBalance -= doublePreendorsing.AccuserReward;
 
-            offender.Balance += doublePreendorsing.OffenderLoss;
-            offender.FrozenDeposit += doublePreendorsing.OffenderLoss;
-            offender.StakingBalance += doublePreendorsing.OffenderLoss;
+            offender.Balance += doublePreendorsing.OffenderLossOwn;
+            offender.StakingBalance += doublePreendorsing.OffenderLossOwn;
 
             accuser.DoublePreendorsingCount--;
             if (offender != accuser) offender.DoublePreendorsingCount--;

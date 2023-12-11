@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Tzkt.Data.Models;
 
@@ -8,8 +6,6 @@ namespace Tzkt.Sync.Protocols.Proto12
 {
     class FreezerCommit : ProtocolCommit
     {
-        public long FreezerChange { get; private set; }
-
         public FreezerCommit(ProtocolHandler protocol) : base(protocol) { }
 
         public virtual void Apply(Block block, JsonElement rawBlock)
@@ -22,7 +18,7 @@ namespace Tzkt.Sync.Protocols.Proto12
                             x.RequiredString("kind") == "freezer" &&
                             x.RequiredString("category") == "deposits"))
             {
-                var baker = Cache.Accounts.GetDelegate(update.RequiredString("delegate"));
+                var baker = Cache.Accounts.GetDelegate(update.Required("staker").RequiredString("baker"));
                 var freezerUpdate = new FreezerUpdate
                 {
                     BakerId = baker.Id,
@@ -30,10 +26,7 @@ namespace Tzkt.Sync.Protocols.Proto12
                     Change = update.RequiredInt64("change")
                 };
 
-                Db.TryAttach(baker);
-                baker.FrozenDeposit += freezerUpdate.Change;
-
-                FreezerChange += freezerUpdate.Change;
+                Cache.Statistics.Current.TotalFrozen += freezerUpdate.Change;
 
                 Db.FreezerUpdates.Add(freezerUpdate);
             }
@@ -46,12 +39,6 @@ namespace Tzkt.Sync.Protocols.Proto12
 
             foreach (var freezerUpdate in await Db.FreezerUpdates.Where(x => x.Cycle == block.Cycle).ToListAsync())
             {
-                var baker = Cache.Accounts.GetDelegate(freezerUpdate.BakerId);
-                Db.TryAttach(baker);
-                baker.FrozenDeposit -= freezerUpdate.Change;
-
-                FreezerChange -= freezerUpdate.Change;
-
                 Db.FreezerUpdates.Remove(freezerUpdate);
             }
         }

@@ -59,7 +59,7 @@ namespace Tzkt.Sync.Protocols.Proto1
         {
             var entries = Db.ChangeTracker.Entries();
 
-            if (ops != -1 && ops != entries.Count(x => x.Entity is BaseOperation or ContractEvent && x.State == EntityState.Added))
+            if (ops != -1 && ops != entries.Count(x => x.Entity is BaseOperation && x.State == EntityState.Added))
                 throw new Exception($"Diagnostics failed: wrong operations count");
 
             var state = Cache.AppState.Get();
@@ -172,7 +172,8 @@ namespace Tzkt.Sync.Protocols.Proto1
         {
             var remote = await Rpc.GetContractAsync(level, account.Address);
 
-            if (account is not Data.Models.Delegate && remote.RequiredInt64("balance") != account.Balance - account.RollupBonds - account.SmartRollupBonds)
+            if (account is not Data.Models.Delegate && remote.RequiredInt64("balance") != account.Balance - account.RollupBonds
+                - account.SmartRollupBonds - ((account as User)?.StakedBalance ?? 0) - ((account as User)?.UnstakedBalance ?? 0))
                 throw new Exception($"Diagnostics failed: wrong balance {account.Address}");
 
             TestAccountDelegate(remote, account);

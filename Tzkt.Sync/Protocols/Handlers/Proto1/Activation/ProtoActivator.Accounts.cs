@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Netmavryk.Contracts;
 using Netmavryk.Encoding;
 using Netmavryk.Keys;
@@ -25,8 +21,16 @@ namespace Tzkt.Sync.Protocols.Proto1
                     x["amount"].Value<long>(),
                     x["delegate"]?.Value<string>() ?? null,
                     x["script"]["code"].ToString(),
-                    x["script"]["storage"].ToString())
-                )
+                    x["script"]["storage"].ToString()
+                ))
+                .ToList() ?? new(0);
+
+            var bootstrapSmartRollups = parameters["bootstrap_smart_rollups"]?
+                .Select(x =>
+                (
+                    x["address"].Value<string>(),
+                    x["pvm_kind"].Value<string>()
+                ))
                 .ToList() ?? new(0);
 
             var accounts = new List<Account>(bootstrapAccounts.Count + bootstrapContracts.Count);
@@ -40,7 +44,7 @@ namespace Tzkt.Sync.Protocols.Proto1
             #endregion
 
             #region bootstrap bakers
-            foreach (var (pubKey, balance, _) in bootstrapAccounts.Where(x => x.Item1[0] != 'm' && x.Item3 == null))
+            foreach (var (pubKey, balance, _) in bootstrapAccounts.Where(x => x.Item1[0] != 't' && x.Item3 == null))
             {
                 var baker = new Data.Models.Delegate
                 {
@@ -48,8 +52,6 @@ namespace Tzkt.Sync.Protocols.Proto1
                     Address = PubKey.FromBase58(pubKey).Address,
                     Balance = balance,
                     StakingBalance = balance,
-                    DelegatedBalance = 0,
-                    Counter = 0,
                     PublicKey = pubKey,
                     FirstLevel = 1,
                     LastLevel = 1,
@@ -65,7 +67,7 @@ namespace Tzkt.Sync.Protocols.Proto1
             #endregion
 
             #region bootstrap delegated users
-            foreach (var (pubKey, balance, delegateTo) in bootstrapAccounts.Where(x => x.Item1[0] != 'm' && x.Item3 != null))
+            foreach (var (pubKey, balance, delegateTo) in bootstrapAccounts.Where(x => x.Item1[0] != 't' && x.Item3 != null))
             {
                 var delegat = Cache.Accounts.GetDelegate(delegateTo);
 
@@ -74,15 +76,15 @@ namespace Tzkt.Sync.Protocols.Proto1
                     Id = Cache.AppState.NextAccountId(),
                     Address = PubKey.FromBase58(pubKey).Address,
                     Balance = balance,
-                    Counter = 0,
                     FirstLevel = 1,
                     LastLevel = 1,
                     Type = AccountType.User,
                     PublicKey = pubKey,
-                    Revealed = true, 
+                    Revealed = true,
                     Staked = true,
                     DelegationLevel = 1,
-                    Delegate = delegat
+                    Delegate = delegat,
+                    DelegateId = delegat.Id
                 };
 
                 delegat.DelegatorsCount++;
@@ -95,14 +97,13 @@ namespace Tzkt.Sync.Protocols.Proto1
             #endregion
 
             #region bootstrap users
-            foreach (var (pkh, balance, _) in bootstrapAccounts.Where(x => x.Item1[0] == 'm'))
+            foreach (var (pkh, balance, _) in bootstrapAccounts.Where(x => x.Item1[0] == 't'))
             {
                 var user = new User
                 {
                     Id = Cache.AppState.NextAccountId(),
                     Address = pkh,
                     Balance = balance,
-                    Counter = 0,
                     FirstLevel = 1,
                     LastLevel = 1,
                     Type = AccountType.User
@@ -125,7 +126,6 @@ namespace Tzkt.Sync.Protocols.Proto1
                     Id = Cache.AppState.NextAccountId(),
                     Address = OriginationNonce.GetContractAddress(index++),
                     Balance = balance,
-                    Counter = 0,
                     FirstLevel = 1,
                     LastLevel = 1,
                     Spendable = false,
@@ -216,6 +216,45 @@ namespace Tzkt.Sync.Protocols.Proto1
             }
             #endregion
 
+            #region bootstrap smart rollups
+            foreach (var (address, pvmKind) in bootstrapSmartRollups)
+            {
+                var creator = nullAddress;
+                var rollup = new SmartRollup()
+                {
+                    Id = Cache.AppState.NextAccountId(),
+                    FirstLevel = 1,
+                    LastLevel = 1,
+                    Address = address,
+                    Balance = 0,
+                    CreatorId = creator.Id,
+                    Staked = false,
+                    Type = AccountType.SmartRollup,
+                    PvmKind = pvmKind switch
+                    {
+                        "arith" => PvmKind.Arith,
+                        "wasm_2_0_0" => PvmKind.Wasm,
+                        _ => throw new NotImplementedException()
+                    },
+                    GenesisCommitment = "genesis_commitment_hash", // this should be calculated from Machine.install_boot_sector and Machine.state_hash,
+                    LastCommitment = "genesis_commitment_hash",    // but that cannot be done on the indexer side, so we set a random string
+                    InboxLevel = 2,
+                    TotalStakers = 0,
+                    ActiveStakers = 0,
+                    ExecutedCommitments = 0,
+                    CementedCommitments = 0,
+                    PendingCommitments = 0,
+                    RefutedCommitments = 0,
+                    OrphanCommitments = 0,
+                    SmartRollupBonds = 0
+                };
+                Cache.Accounts.Add(rollup);
+                accounts.Add(rollup);
+
+                creator.SmartRollupsCount++;
+            }
+            #endregion
+
             Db.Accounts.AddRange(accounts);
 
             #region migration ops
@@ -260,8 +299,7 @@ namespace Tzkt.Sync.Protocols.Proto1
             #endregion
 
             #region statistics
-            var stats = await Cache.Statistics.GetAsync(1);
-            stats.TotalBootstrapped = accounts.Sum(x => x.Balance);
+            Cache.Statistics.Current.TotalBootstrapped = accounts.Sum(x => x.Balance);
             #endregion
 
             return accounts;

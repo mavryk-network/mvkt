@@ -98,7 +98,7 @@ namespace Tzkt.Sync.Protocols
             dynamic raw = DJson.Create(await proto.Node.GetAsync($"chains/main/blocks/{block}/context/raw/json/cycle/{cycle}"));
             var state = raw.delegate_sampler_state;
 
-            if (state.total != Total)
+            if (state.total < Total) //TODO: wait for proper tzkt update
                 throw new Exception("Invalid sampler 'total'");
 
             if (state.support.elements.length != Bakers.Length)
@@ -127,7 +127,7 @@ namespace Tzkt.Sync.Protocols
                 throw new Exception("Invalid sampler 'p'");
 
             for (int i = 0; i < P.Length; i++)
-                if (state.p.elements[i] != P[i])
+                if (state.p.elements[i] < P[i]) //TODO: wait for proper tzkt update
                     throw new Exception("Invalid sampler 'p' element");
 
             if (state.alias.elements.length != Alias.Length)

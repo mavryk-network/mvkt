@@ -133,7 +133,7 @@ namespace Tzkt.Sync.Protocols.Proto16
         {
             if (!Cache.Accounts.TryGetCached(address, out var account))
             {
-                account = address[0] == 'm' && address[1] == 'v'
+                account = address[0] == 't' && address[1] == 'z'
                     ? new User
                     {
                         Id = Cache.AppState.NextAccountId(),

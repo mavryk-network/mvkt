@@ -15,23 +15,24 @@ namespace Tzkt.Sync
         {
             services.AddScoped<GenesisHandler>();
             services.AddScoped<InitiatorHandler>();
-            // services.AddScoped<Proto1Handler>();
-            // services.AddScoped<Proto2Handler>();
-            // services.AddScoped<Proto3Handler>();
-            // services.AddScoped<Proto4Handler>();
-            // services.AddScoped<Proto5Handler>();
-            // services.AddScoped<Proto6Handler>();
-            // services.AddScoped<Proto7Handler>();
-            // services.AddScoped<Proto8Handler>();
-            // services.AddScoped<Proto9Handler>();
-            // services.AddScoped<Proto10Handler>();
-            // services.AddScoped<Proto11Handler>();
-            // services.AddScoped<Proto12Handler>();
-            // services.AddScoped<Proto13Handler>();
-            // services.AddScoped<Proto14Handler>();
-            // services.AddScoped<Proto15Handler>();
-            // services.AddScoped<Proto16Handler>();
+            services.AddScoped<Proto1Handler>();
+            services.AddScoped<Proto2Handler>();
+            services.AddScoped<Proto3Handler>();
+            services.AddScoped<Proto4Handler>();
+            services.AddScoped<Proto5Handler>();
+            services.AddScoped<Proto6Handler>();
+            services.AddScoped<Proto7Handler>();
+            services.AddScoped<Proto8Handler>();
+            services.AddScoped<Proto9Handler>();
+            services.AddScoped<Proto10Handler>();
+            services.AddScoped<Proto11Handler>();
+            services.AddScoped<Proto12Handler>();
+            services.AddScoped<Proto13Handler>();
+            services.AddScoped<Proto14Handler>();
+            services.AddScoped<Proto15Handler>();
+            services.AddScoped<Proto16Handler>();
             services.AddScoped<Proto17Handler>();
+            services.AddScoped<Proto18Handler>();
         }
 
         public static ProtocolHandler GetProtocolHandler(this IServiceProvider services, int level, string protocol)
@@ -85,6 +86,8 @@ namespace Tzkt.Sync
                 // "PtLimaPtLMwfNinJi9rCfDPWea8dFgTZ1MeJ9f1m2SRic6ayiwW" => services.GetRequiredService<Proto15Handler>(),
                 // "PtMumbaiiFFEGbew1rRjzSPyzRbA51Tm3RVZL5suHPxSZYDhCEc" => services.GetRequiredService<Proto16Handler>(),
                 // "PtMumbai2TmsJHNGRkD8v8YDbtao7BLUC3wjASn1inAKLFCjaH1" => services.GetRequiredService<Proto16Handler>(),
+                // "PtNairobiyssHuh87hEhfVBGCVrK3WnS8Z2FT4ymB5tAa4r1nQf" => services.GetRequiredService<Proto17Handler>(),
+                // "ProxfordSW2S7fvchT1Zgj2avb5UES194neRyYVXoaDGvF9egt8" => services.GetRequiredService<Proto18Handler>(),
                 "PtAtLasLVMXnJGQPjVwVsLse9ncWgqCu32NKRsUM8R5u6RRDn5v" => services.GetRequiredService<Proto17Handler>(),
                 "ProtoALphaALphaALphaALphaALphaALphaALphaALphaDdp3zK" => services.GetRequiredService<Proto17Handler>(),
                 _ => null,
