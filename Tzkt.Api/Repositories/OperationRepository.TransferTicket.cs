@@ -176,7 +176,6 @@ namespace Tzkt.Api.Repositories
             AccountParameter sender,
             AccountParameter target,
             AccountParameter ticketer,
-            Int64Parameter id,
             Int32Parameter level,
             DateTimeParameter timestamp,
             OperationStatusParameter status,
@@ -200,7 +199,6 @@ namespace Tzkt.Api.Repositories
                 .Filter("SenderId", sender)
                 .Filter("TargetId", target)
                 .Filter("TicketerId", ticketer)
-                .FilterA(@"o.""Id""", id)
                 .FilterA(@"o.""Level""", level)
                 .FilterA(@"o.""Timestamp""", timestamp)
                 .Filter("Status", status)
@@ -255,7 +253,6 @@ namespace Tzkt.Api.Repositories
             AccountParameter sender,
             AccountParameter target,
             AccountParameter ticketer,
-            Int64Parameter id,
             Int32Parameter level,
             DateTimeParameter timestamp,
             OperationStatusParameter status,
@@ -324,7 +321,6 @@ namespace Tzkt.Api.Repositories
                 .Filter("SenderId", sender)
                 .Filter("TargetId", target)
                 .Filter("TicketerId", ticketer)
-                .FilterA(@"o.""Id""", id)
                 .FilterA(@"o.""Level""", level)
                 .FilterA(@"o.""Timestamp""", timestamp)
                 .Filter("Status", status)
@@ -461,7 +457,6 @@ namespace Tzkt.Api.Repositories
             AccountParameter sender,
             AccountParameter target,
             AccountParameter ticketer,
-            Int64Parameter id,
             Int32Parameter level,
             DateTimeParameter timestamp,
             OperationStatusParameter status,
@@ -527,7 +522,6 @@ namespace Tzkt.Api.Repositories
                 .Filter("SenderId", sender)
                 .Filter("TargetId", target)
                 .Filter("TicketerId", ticketer)
-                .FilterA(@"o.""Id""", id)
                 .FilterA(@"o.""Level""", level)
                 .FilterA(@"o.""Timestamp""", timestamp)
                 .Filter("Status", status)
