@@ -53,12 +53,16 @@ namespace Tzkt.Api.Models
         /// <summary>
         /// Fixed reward paid to the payload proposer (micro tez)
         /// </summary>
-        public long Reward { get; set; }
+        public long RewardLiquid { get; set; }
+        public long RewardStakedOwn { get; set; }
+        public long RewardStakedShared { get; set; }
 
         /// <summary>
         /// Bonus reward paid to the block producer (micro tez)
         /// </summary>
-        public long Bonus { get; set; }
+        public long BonusLiquid { get; set; }
+        public long BonusStakedOwn { get; set; }
+        public long BonusStakedShared { get; set; }
 
         /// <summary>
         /// Total fee gathered from operations, included into the block
