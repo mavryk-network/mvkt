@@ -47,7 +47,8 @@ namespace Tzkt.Api.Repositories
                 RevealedLevel = row.RevealedLevel,
                 RevealedCycle = row.RevealedCycle,
                 Nonce = Hex.Convert(row.Nonce),
-                Reward = row.Reward,
+                // Reward = row.Reward,
+                Reward = row.RewardLiquid,
                 Quote = Quotes.Get(quote, row.Level)
             });
         }
@@ -75,7 +76,8 @@ namespace Tzkt.Api.Repositories
                 RevealedLevel = row.RevealedLevel,
                 RevealedCycle = row.RevealedCycle,
                 Nonce = Hex.Convert(row.Nonce),
-                Reward = row.Reward,
+                // Reward = row.Reward,
+                Reward = row.RewardLiquid,
                 Quote = Quotes.Get(quote, block.Level)
             });
         }
@@ -121,7 +123,8 @@ namespace Tzkt.Api.Repositories
                 RevealedLevel = row.RevealedLevel,
                 RevealedCycle = row.RevealedCycle,
                 Nonce = Hex.Convert(row.Nonce),
-                Reward = row.Reward,
+                // Reward = row.Reward,
+                Reward = row.RewardLiquid,
                 Quote = Quotes.Get(quote, row.Level)
             });
         }
@@ -234,7 +237,8 @@ namespace Tzkt.Api.Repositories
                         break;
                     case "reward":
                         foreach (var row in rows)
-                            result[j++][i] = row.Reward;
+                            // result[j++][i] = row.Reward;
+                            result[j++][i] = row.RewardLiquid;
                         break;
                     case "quote":
                         foreach (var row in rows)
@@ -349,7 +353,8 @@ namespace Tzkt.Api.Repositories
                     break;
                 case "reward":
                     foreach (var row in rows)
-                        result[j++] = row.Reward;
+                        // result[j++] = row.Reward;
+                        result[j++] = row.RewardLiquid;
                     break;
                 case "quote":
                     foreach (var row in rows)

@@ -43,7 +43,8 @@ namespace Tzkt.Api.Repositories
                 Hash = hash,
                 Delegate = Accounts.GetAlias(row.DelegateId),
                 Slots = row.Slots,
-                Rewards = row.Reward,
+                // Rewards = row.Reward,
+                Rewards = row.RewardLiquid,
                 Deposit = row.Deposit,
                 Quote = Quotes.Get(quote, row.Level)
             });
@@ -69,7 +70,8 @@ namespace Tzkt.Api.Repositories
                 Hash = row.OpHash,
                 Delegate = Accounts.GetAlias(row.DelegateId),
                 Slots = row.Slots,
-                Rewards = row.Reward,
+                // Rewards = row.Reward,
+                Rewards = row.RewardLiquid,
                 Deposit = row.Deposit,
                 Quote = Quotes.Get(quote, block.Level)
             });
@@ -102,7 +104,8 @@ namespace Tzkt.Api.Repositories
                 Hash = row.OpHash,
                 Delegate = Accounts.GetAlias(row.DelegateId),
                 Slots = row.Slots,
-                Rewards = row.Reward,
+                // Rewards = row.Reward,
+                Rewards = row.RewardLiquid,
                 Deposit = row.Deposit,
                 Quote = Quotes.Get(quote, row.Level)
             });
@@ -191,7 +194,8 @@ namespace Tzkt.Api.Repositories
                         break;
                     case "rewards":
                         foreach (var row in rows)
-                            result[j++][i] = row.Reward;
+                            // result[j++][i] = row.Reward;
+                            result[j++][i] = row.RewardLiquid;
                         break;
                     case "deposit":
                         foreach (var row in rows)
@@ -285,7 +289,8 @@ namespace Tzkt.Api.Repositories
                     break;
                 case "rewards":
                     foreach (var row in rows)
-                        result[j++] = row.Reward;
+                        // result[j++] = row.Reward;
+                        result[j++] = row.RewardLiquid;
                     break;
                 case "deposit":
                     foreach (var row in rows)

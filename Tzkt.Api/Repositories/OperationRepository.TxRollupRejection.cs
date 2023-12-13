@@ -56,7 +56,8 @@ namespace Tzkt.Api.Repositories
                 BakerFee = row.BakerFee,
                 Rollup = Accounts.GetAlias(row.RollupId),
                 Committer = Accounts.GetAlias(row.CommitterId),
-                Reward = row.Reward,
+                // Reward = row.Reward,
+                Reward = row.RewardLiquid,
                 Loss = row.Loss,
                 Status = OpStatuses.ToString(row.Status),
                 Errors = row.Errors != null ? OperationErrorSerializer.Deserialize(row.Errors) : null,
@@ -92,7 +93,8 @@ namespace Tzkt.Api.Repositories
                 BakerFee = row.BakerFee,
                 Rollup = Accounts.GetAlias(row.RollupId),
                 Committer = Accounts.GetAlias(row.CommitterId),
-                Reward = row.Reward,
+                // Reward = row.Reward,
+                Reward = row.RewardLiquid,
                 Loss = row.Loss,
                 Status = OpStatuses.ToString(row.Status),
                 Errors = row.Errors != null ? OperationErrorSerializer.Deserialize(row.Errors) : null,
@@ -126,7 +128,8 @@ namespace Tzkt.Api.Repositories
                 BakerFee = row.BakerFee,
                 Rollup = Accounts.GetAlias(row.RollupId),
                 Committer = Accounts.GetAlias(row.CommitterId),
-                Reward = row.Reward,
+                // Reward = row.Reward,
+                Reward = row.RewardLiquid,
                 Loss = row.Loss,
                 Status = OpStatuses.ToString(row.Status),
                 Errors = row.Errors != null ? OperationErrorSerializer.Deserialize(row.Errors) : null,
@@ -185,7 +188,8 @@ namespace Tzkt.Api.Repositories
                 BakerFee = row.BakerFee,
                 Rollup = Accounts.GetAlias(row.RollupId),
                 Committer = Accounts.GetAlias(row.CommitterId),
-                Reward = row.Reward,
+                // Reward = row.Reward,
+                Reward = row.RewardLiquid,
                 Loss = row.Loss,
                 Status = OpStatuses.ToString(row.Status),
                 Errors = row.Errors != null ? OperationErrorSerializer.Deserialize(row.Errors) : null,
@@ -322,7 +326,8 @@ namespace Tzkt.Api.Repositories
                         break;
                     case "reward":
                         foreach (var row in rows)
-                            result[j++][i] = row.Reward;
+                            // result[j++][i] = row.Reward;
+                            result[j++][i] = row.RewardLiquid;
                         break;
                     case "loss":
                         foreach (var row in rows)
@@ -470,7 +475,8 @@ namespace Tzkt.Api.Repositories
                     break;
                 case "reward":
                     foreach (var row in rows)
-                        result[j++] = row.Reward;
+                        // result[j++] = row.Reward;
+                        result[j++] = row.RewardLiquid;
                     break;
                 case "loss":
                     foreach (var row in rows)

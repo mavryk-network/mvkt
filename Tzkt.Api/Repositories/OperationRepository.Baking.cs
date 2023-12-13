@@ -45,7 +45,8 @@ namespace Tzkt.Api.Repositories
                 BlockRound = row.BlockRound,
                 Block = row.Hash,
                 Deposit = row.Deposit,
-                Reward = row.Reward,
+                // Reward = row.Reward,
+                Reward = row.RewardLiquid,
                 Bonus = row.Bonus,
                 Fees = row.Fees,
                 Quote = Quotes.Get(quote, row.Level)
@@ -86,7 +87,8 @@ namespace Tzkt.Api.Repositories
                 BlockRound = row.BlockRound,
                 Block = row.Hash,
                 Deposit = row.Deposit,
-                Reward = row.Reward,
+                // Reward = row.Reward,
+                Reward = row.RewardLiquid,
                 Bonus = row.Bonus,
                 Fees = row.Fees,
                 Quote = Quotes.Get(quote, row.Level)
@@ -187,7 +189,8 @@ namespace Tzkt.Api.Repositories
                         break;
                     case "reward":
                         foreach (var row in rows)
-                            result[j++][i] = row.Reward;
+                            // result[j++][i] = row.Reward;
+                            result[j++][i] = row.RewardLiquid;
                         break;
                     case "bonus":
                         foreach (var row in rows)
@@ -296,7 +299,8 @@ namespace Tzkt.Api.Repositories
                     break;
                 case "reward":
                     foreach (var row in rows)
-                        result[j++] = row.Reward;
+                        // result[j++] = row.Reward;
+                        result[j++] = row.RewardLiquid;
                     break;
                 case "bonus":
                     foreach (var row in rows)

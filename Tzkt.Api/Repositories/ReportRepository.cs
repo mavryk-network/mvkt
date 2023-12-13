@@ -118,7 +118,8 @@ namespace Tzkt.Api.Repositories
                 csv.Write(delimiter);
                 if (account is RawDelegate)
                 {
-                    csv.Write(row.Reward == null ? "" : ((decimal)row.Reward / 1_000_000m).ToString(format));
+                    // csv.Write(row.Reward == null ? "" : ((decimal)row.Reward / 1_000_000m).ToString(format));
+                    csv.Write(row.RewardLiquid == null ? "" : ((decimal)row.RewardLiquid / 1_000_000m).ToString(format));
                     csv.Write(delimiter);
                     csv.Write(row.Loss == null ? "" : ((decimal)-row.Loss / 1_000_000m).ToString(format));
                     csv.Write(delimiter);
@@ -276,9 +277,11 @@ namespace Tzkt.Api.Repositories
                 csv.Write(delimiter);
                 if (account is RawDelegate)
                 {
-                    csv.Write(row.Reward == null ? "" : ((decimal)row.Reward / 1_000_000m).ToString(format));
+                    // csv.Write(row.Reward == null ? "" : ((decimal)row.Reward / 1_000_000m).ToString(format));
+                    csv.Write(row.RewardLiquid == null ? "" : ((decimal)row.RewardLiquid / 1_000_000m).ToString(format));
                     csv.Write(delimiter);
-                    csv.Write(row.Reward == null ? "" : ((double)row.Reward / 1_000_000d * price).ToString(format));
+                    // csv.Write(row.Reward == null ? "" : ((double)row.Reward / 1_000_000d * price).ToString(format));
+                    csv.Write(row.RewardLiquid == null ? "" : ((double)row.RewardLiquid / 1_000_000d * price).ToString(format));
                     csv.Write(delimiter);
                     csv.Write(row.Loss == null ? "" : ((decimal)-row.Loss / 1_000_000m).ToString(format));
                     csv.Write(delimiter);
@@ -445,9 +448,11 @@ namespace Tzkt.Api.Repositories
                 csv.Write(delimiter);
                 if (account is RawDelegate)
                 {
-                    csv.Write(row.Reward == null ? "" : ((decimal)row.Reward / 1_000_000m).ToString(format));
+                    // csv.Write(row.Reward == null ? "" : ((decimal)row.Reward / 1_000_000m).ToString(format));
+                    csv.Write(row.RewardLiquid == null ? "" : ((decimal)row.RewardLiquid / 1_000_000m).ToString(format));
                     csv.Write(delimiter);
-                    csv.Write(row.Reward == null ? "" : ((double)row.Reward / 1_000_000d * price).ToString(format));
+                    // csv.Write(row.Reward == null ? "" : ((double)row.Reward / 1_000_000d * price).ToString(format));
+                    csv.Write(row.RewardLiquid == null ? "" : ((double)row.RewardLiquid / 1_000_000d * price).ToString(format));
                     csv.Write(delimiter);
                     csv.Write(row.Loss == null ? "" : ((decimal)-row.Loss / 1_000_000m).ToString(format));
                     csv.Write(delimiter);

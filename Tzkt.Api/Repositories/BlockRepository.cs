@@ -295,7 +295,8 @@ namespace Tzkt.Api.Repositories
                         break;
                     case "reward":
                         foreach (var row in rows)
-                            result[j++][i] = row.Reward;
+                            // result[j++][i] = row.Reward;
+                            result[j++][i] = row.RewardLiquid;
                         break;
                     case "bonus":
                         foreach (var row in rows)
@@ -445,7 +446,8 @@ namespace Tzkt.Api.Repositories
                     break;
                 case "reward":
                     foreach (var row in rows)
-                        result[j++] = row.Reward;
+                        // result[j++] = row.Reward;
+                        result[j++] = row.RewardLiquid;
                     break;
                 case "fees":
                     foreach (var row in rows)
