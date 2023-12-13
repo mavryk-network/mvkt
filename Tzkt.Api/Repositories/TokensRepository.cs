@@ -272,11 +272,24 @@ namespace Tzkt.Api.Repositories
         #region token balances
         async Task<IEnumerable<dynamic>> QueryTokenBalancesAsync(TokenBalanceFilter filter, Pagination pagination, List<SelectionField> fields = null)
         {
+            // var select = @"
+            //     tb.""Id"",
+            //     tb.""AccountId"",
+            //     tb.""Balance"",
+            //     (tb.""Balance""::numeric * t.""Value""::numeric)::numeric(1000,0) as ""BalanceValue"",
+            //     tb.""FirstLevel"",
+            //     tb.""LastLevel"",
+            //     tb.""TransfersCount"",
+            //     tb.""TokenId"" as ""tId"",
+            //     tb.""ContractId"" as ""tContractId"",
+            //     t.""TokenId"" as ""tTokenId"",
+            //     t.""Tags"" as ""tTags"",
+            //     t.""TotalSupply"" as ""tTotalSupply"",
+            //     t.""Metadata"" as ""tMetadata""";
             var select = @"
                 tb.""Id"",
                 tb.""AccountId"",
                 tb.""Balance"",
-                (tb.""Balance""::numeric * t.""Value""::numeric)::numeric(1000,0) as ""BalanceValue"",
                 tb.""FirstLevel"",
                 tb.""LastLevel"",
                 tb.""TransfersCount"",
@@ -297,7 +310,7 @@ namespace Tzkt.Api.Repositories
                         case "id": columns.Add(@"tb.""Id"""); break;
                         case "account": columns.Add(@"tb.""AccountId"""); break;
                         case "balance": columns.Add(@"tb.""Balance"""); break;
-                        case "balanceValue": columns.Add(@"(tb.""Balance""::numeric * t.""Value""::numeric)::numeric(1000,0) as ""BalanceValue"""); break;
+                        // case "balanceValue": columns.Add(@"(tb.""Balance""::numeric * t.""Value""::numeric)::numeric(1000,0) as ""BalanceValue"""); break;
                         case "firstLevel": columns.Add(@"tb.""FirstLevel"""); break;
                         case "firstTime": columns.Add(@"tb.""FirstLevel"""); break;
                         case "lastLevel": columns.Add(@"tb.""LastLevel"""); break;
