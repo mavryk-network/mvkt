@@ -550,8 +550,18 @@ namespace Tzkt.Api.Repositories
             var acc = await Accounts.GetAsync(address);
             if (acc == null) return null;
 
+            // var sql = $@"
+            //     SELECT      bc.*, dc.""Balance""
+            //     FROM        ""DelegatorCycles"" as dc
+            //     INNER JOIN  ""BakerCycles"" as bc
+            //             ON  bc.""BakerId"" = dc.""BakerId""
+            //            AND  bc.""Cycle"" = dc.""Cycle""
+            //     WHERE       dc.""DelegatorId"" = {acc.Id}
+            //     AND         dc.""Cycle"" = {cycle}
+            //     LIMIT       1";
+
             var sql = $@"
-                SELECT      bc.*, dc.""Balance""
+                SELECT      bc.*, dc.""DelegatedBalance""
                 FROM        ""DelegatorCycles"" as dc
                 INNER JOIN  ""BakerCycles"" as bc
                         ON  bc.""BakerId"" = dc.""BakerId""
@@ -567,7 +577,8 @@ namespace Tzkt.Api.Repositories
             return new DelegatorRewards
             {
                 Baker = Accounts.GetAlias(row.BakerId),
-                Balance = row.Balance,
+                // Balance = row.Balance,
+                Balance = row.DelegatedBalance,
                 ActiveStake = row.ActiveStake,
                 SelectedStake = row.SelectedStake,
                 DoubleBakingRewards = row.DoubleBakingRewards,
@@ -611,8 +622,19 @@ namespace Tzkt.Api.Repositories
             var acc = await Accounts.GetAsync(address);
             if (acc == null) return Enumerable.Empty<DelegatorRewards>();
 
+            // var sql = new SqlBuilder(@"
+            //     SELECT      bc.*, dc.""Balance""
+            //     FROM        ""DelegatorCycles"" as dc
+            //     INNER JOIN  ""BakerCycles"" as bc
+            //             ON  bc.""BakerId"" = dc.""BakerId""
+            //            AND  bc.""Cycle"" = dc.""Cycle""
+            //     ")
+            //     .FilterA(@"dc.""DelegatorId""", acc.Id)
+            //     .FilterA(@"dc.""Cycle""", cycle)
+            //     .Take(sort ?? new SortParameter { Desc = "cycle" }, offset, limit, x => ("Cycle", "Cycle"), "dc");
+
             var sql = new SqlBuilder(@"
-                SELECT      bc.*, dc.""Balance""
+                SELECT      bc.*, dc.""DelegatedBalance""
                 FROM        ""DelegatorCycles"" as dc
                 INNER JOIN  ""BakerCycles"" as bc
                         ON  bc.""BakerId"" = dc.""BakerId""
@@ -628,7 +650,8 @@ namespace Tzkt.Api.Repositories
             return rows.Select(row => new DelegatorRewards
             {
                 Baker = Accounts.GetAlias(row.BakerId),
-                Balance = row.Balance,
+                // Balance = row.Balance,
+                Balance = row.DelegatedBalance,
                 ActiveStake = row.ActiveStake,
                 SelectedStake = row.SelectedStake,
                 DoubleBakingRewards = row.DoubleBakingRewards,
@@ -743,7 +766,8 @@ namespace Tzkt.Api.Repositories
                         break;
                     case "balance":
                         foreach (var row in rows)
-                            result[j++][i] = row.Balance;
+                            // result[j++][i] = row.Balance;
+                            result[j++][i] = row.DelegatedBalance;
                         break;
                     case "activeStake":
                         foreach (var row in rows)
@@ -944,7 +968,8 @@ namespace Tzkt.Api.Repositories
                     break;
                 case "balance":
                     foreach (var row in rows)
-                        result[j++] = row.Balance;
+                        // result[j++] = row.Balance;
+                        result[j++] = row.DelegatedBalance;
                     break;
                 case "activeStake":
                     foreach (var row in rows)
