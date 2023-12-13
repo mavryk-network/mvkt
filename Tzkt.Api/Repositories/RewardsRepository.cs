@@ -51,17 +51,23 @@ namespace Tzkt.Api.Repositories
 
             return new BakerRewards
             {
-                ActiveStake = row.ActiveStake,
-                SelectedStake = row.SelectedStake,
+                // ActiveStake = row.ActiveStake,
+                // SelectedStake = row.SelectedStake,
+                ActiveStake = row.BakingPower,
+                SelectedStake = row.TotalBakingPower,
                 DoubleBakingRewards = row.DoubleBakingRewards,
-                DoubleBakingLosses = row.DoubleBakingLosses,
+                // DoubleBakingLosses = row.DoubleBakingLosses,
+                DoubleBakingLosses = row.DoubleBakingLossesOwn,
                 DoubleEndorsingRewards = row.DoubleEndorsingRewards,
-                DoubleEndorsingLosses = row.DoubleEndorsingLosses,
+                // DoubleEndorsingLosses = row.DoubleEndorsingLosses,
+                DoubleEndorsingLosses = row.DoubleEndorsingLossesOwn,
                 DoublePreendorsingRewards = row.DoublePreendorsingRewards,
-                DoublePreendorsingLosses = row.DoublePreendorsingLosses,
+                // DoublePreendorsingLosses = row.DoublePreendorsingLosses,
+                DoublePreendorsingLosses = row.DoublePreendorsingLossesOwn,
                 Cycle = row.Cycle,
                 DelegatedBalance = row.DelegatedBalance,
-                EndorsementRewards = row.EndorsementRewards,
+                // EndorsementRewards = row.EndorsementRewards,
+                EndorsementRewards = row.EndorsementRewardsLiquid,
                 Endorsements = row.Endorsements,
                 ExpectedBlocks = Math.Round(row.ExpectedBlocks, 2),
                 ExpectedEndorsements = Math.Round(row.ExpectedEndorsements, 2),
@@ -76,10 +82,14 @@ namespace Tzkt.Api.Repositories
                 MissedBlocks = row.MissedBlocks,
                 NumDelegators = row.DelegatorsCount,
                 BlockFees = row.BlockFees,
-                BlockRewards = row.BlockRewards,
+                // BlockRewards = row.BlockRewards,
+                BlockRewards = row.BlockRewardsLiquid,
                 Blocks = row.Blocks,
-                RevelationLosses = row.RevelationLosses,
-                RevelationRewards = row.RevelationRewards,
+                // RevelationLosses = row.RevelationLosses,
+                RevelationLosses = row.NonceRevelationLosses,
+                // RevelationRewards = row.RevelationRewards,
+                RevelationRewards = row.NonceRevelationRewardsLiquid,
+                // StakingBalance = row.StakingBalance,
                 StakingBalance = row.StakingBalance,
                 Quote = Quotes.Get(quote, Protocols.FindByCycle((int)row.Cycle).GetCycleEnd((int)row.Cycle))
             };
@@ -106,17 +116,23 @@ namespace Tzkt.Api.Repositories
 
             return rows.Select(row => new BakerRewards
             {
-                ActiveStake = row.ActiveStake,
-                SelectedStake = row.SelectedStake,
+                // ActiveStake = row.ActiveStake,
+                // SelectedStake = row.SelectedStake,
+                ActiveStake = row.BakingPower,
+                SelectedStake = row.TotalBakingPower,
                 DoubleBakingRewards = row.DoubleBakingRewards,
-                DoubleBakingLosses = row.DoubleBakingLosses,
+                // DoubleBakingLosses = row.DoubleBakingLosses,
+                DoubleBakingLosses = row.DoubleBakingLossesOwn,
                 DoubleEndorsingRewards = row.DoubleEndorsingRewards,
-                DoubleEndorsingLosses = row.DoubleEndorsingLosses,
+                // DoubleEndorsingLosses = row.DoubleEndorsingLosses,
+                DoubleEndorsingLosses = row.DoubleEndorsingLossesOwn,
                 DoublePreendorsingRewards = row.DoublePreendorsingRewards,
-                DoublePreendorsingLosses = row.DoublePreendorsingLosses,
+                // DoublePreendorsingLosses = row.DoublePreendorsingLosses,
+                DoublePreendorsingLosses = row.DoublePreendorsingLossesOwn,
                 Cycle = row.Cycle,
                 DelegatedBalance = row.DelegatedBalance,
-                EndorsementRewards = row.EndorsementRewards,
+                // EndorsementRewards = row.EndorsementRewards,
+                EndorsementRewards = row.EndorsementRewardsLiquid,
                 Endorsements = row.Endorsements,
                 ExpectedBlocks = Math.Round(row.ExpectedBlocks, 2),
                 ExpectedEndorsements = Math.Round(row.ExpectedEndorsements, 2),
@@ -131,10 +147,14 @@ namespace Tzkt.Api.Repositories
                 MissedBlocks = row.MissedBlocks,
                 NumDelegators = row.DelegatorsCount,
                 BlockFees = row.BlockFees,
-                BlockRewards = row.BlockRewards,
+                // BlockRewards = row.BlockRewards,
+                BlockRewards = row.BlockRewardsLiquid,
                 Blocks = row.Blocks,
-                RevelationLosses = row.RevelationLosses,
-                RevelationRewards = row.RevelationRewards,
+                // RevelationLosses = row.RevelationLosses,
+                RevelationLosses = row.NonceRevelationLosses,
+                // RevelationRewards = row.RevelationRewards,
+                RevelationRewards = row.NonceRevelationRewardsLiquid,
+                // StakingBalance = row.StakingBalance,
                 StakingBalance = row.StakingBalance,
                 Quote = Quotes.Get(quote, Protocols.FindByCycle((int)row.Cycle).GetCycleEnd((int)row.Cycle))
             });
@@ -212,11 +232,13 @@ namespace Tzkt.Api.Repositories
                 {
                     case "activeStake":
                         foreach (var row in rows)
-                            result[j++][i] = row.ActiveStake;
+                            result[j++][i] = row.BakingPower;
+                            // result[j++][i] = row.ActiveStake;
                         break;
                     case "selectedStake":
                         foreach (var row in rows)
-                            result[j++][i] = row.SelectedStake;
+                            // result[j++][i] = row.SelectedStake;
+                            result[j++][i] = row.TotalBakingPower;
                         break;
                     case "doubleBakingRewards":
                         foreach (var row in rows)
@@ -224,7 +246,8 @@ namespace Tzkt.Api.Repositories
                         break;
                     case "doubleBakingLosses":
                         foreach (var row in rows)
-                            result[j++][i] = row.DoubleBakingLosses;
+                            // result[j++][i] = row.DoubleBakingLosses;
+                            result[j++][i] = row.DoubleBakingLossesOwn;
                         break;
                     case "doubleEndorsingRewards":
                         foreach (var row in rows)
@@ -232,7 +255,8 @@ namespace Tzkt.Api.Repositories
                         break;
                     case "doubleEndorsingLosses":
                         foreach (var row in rows)
-                            result[j++][i] = row.DoubleEndorsingLosses;
+                            // result[j++][i] = row.DoubleEndorsingLosses;
+                            result[j++][i] = row.DoubleEndorsingLossesOwn;
                         break;
                     case "doublePreendorsingRewards":
                         foreach (var row in rows)
@@ -240,7 +264,8 @@ namespace Tzkt.Api.Repositories
                         break;
                     case "doublePreendorsingLosses":
                         foreach (var row in rows)
-                            result[j++][i] = row.DoublePreendorsingLosses;
+                            // result[j++][i] = row.DoublePreendorsingLosses;
+                            result[j++][i] = row.DoublePreendorsingLossesOwn;
                         break;
                     case "cycle":
                         foreach (var row in rows)
@@ -252,7 +277,8 @@ namespace Tzkt.Api.Repositories
                         break;
                     case "endorsementRewards":
                         foreach (var row in rows)
-                            result[j++][i] = row.EndorsementRewards;
+                            // result[j++][i] = row.EndorsementRewards;
+                            result[j++][i] = row.EndorsementRewardsLiquid;
                         break;
                     case "endorsements":
                         foreach (var row in rows)
@@ -320,15 +346,18 @@ namespace Tzkt.Api.Repositories
                         break;
                     case "revelationLosses":
                         foreach (var row in rows)
-                            result[j++][i] = row.RevelationLosses;
+                            // result[j++][i] = row.RevelationLosses;
+                            result[j++][i] = row.NonceRevelationLosses;
                         break;
                     case "revelationRewards":
                         foreach (var row in rows)
-                            result[j++][i] = row.RevelationRewards;
+                            // result[j++][i] = row.RevelationRewards;
+                            result[j++][i] = row.NonceRevelationRewardsLiquid;
                         break;
                     case "stakingBalance":
                         foreach (var row in rows)
-                            result[j++][i] = row.StakingBalance;
+                            // result[j++][i] = row.StakingBalance;
+                            result[j++][i] = row.OwnStakedBalance;
                         break;
                     case "quote":
                         foreach (var row in rows)
@@ -652,16 +681,22 @@ namespace Tzkt.Api.Repositories
                 Baker = Accounts.GetAlias(row.BakerId),
                 // Balance = row.Balance,
                 Balance = row.DelegatedBalance,
-                ActiveStake = row.ActiveStake,
-                SelectedStake = row.SelectedStake,
+                // ActiveStake = row.ActiveStake,
+                // SelectedStake = row.SelectedStake,
+                ActiveStake = row.BakingPower,
+                SelectedStake = row.TotalBakingPower,
                 DoubleBakingRewards = row.DoubleBakingRewards,
-                DoubleBakingLosses = row.DoubleBakingLosses,
+                // DoubleBakingLosses = row.DoubleBakingLosses,
+                DoubleBakingLosses = row.DoubleBakingLossesOwn,
                 DoubleEndorsingRewards = row.DoubleEndorsingRewards,
-                DoubleEndorsingLosses = row.DoubleEndorsingLosses,
+                // DoubleEndorsingLosses = row.DoubleEndorsingLosses,
+                DoubleEndorsingLosses = row.DoubleEndorsingLossesOwn,
                 DoublePreendorsingRewards = row.DoublePreendorsingRewards,
-                DoublePreendorsingLosses = row.DoublePreendorsingLosses,
+                // DoublePreendorsingLosses = row.DoublePreendorsingLosses,
+                DoublePreendorsingLosses = row.DoublePreendorsingLossesOwn,
                 Cycle = row.Cycle,
-                EndorsementRewards = row.EndorsementRewards,
+                // EndorsementRewards = row.EndorsementRewards,
+                EndorsementRewards = row.EndorsementRewardsLiquid,
                 Endorsements = row.Endorsements,
                 ExpectedBlocks = Math.Round(row.ExpectedBlocks, 2),
                 ExpectedEndorsements = Math.Round(row.ExpectedEndorsements, 2),
@@ -675,11 +710,15 @@ namespace Tzkt.Api.Repositories
                 MissedBlockRewards = row.MissedBlockRewards,
                 MissedBlocks = row.MissedBlocks,
                 BlockFees = row.BlockFees,
-                BlockRewards = row.BlockRewards,
+                // BlockRewards = row.BlockRewards,
+                BlockRewards = row.BlockRewardsLiquid,
                 Blocks = row.Blocks,
-                RevelationLosses = row.RevelationLosses,
-                RevelationRewards = row.RevelationRewards,
-                StakingBalance = row.StakingBalance,
+                // RevelationLosses = row.RevelationLosses,
+                RevelationLosses = row.NonceRevelationLosses,
+                // RevelationRewards = row.RevelationRewards,
+                RevelationRewards = row.NonceRevelationRewardsLiquid,
+                // StakingBalance = row.StakingBalance,
+                StakingBalance = row.OwnStakedBalance,
                 Quote = Quotes.Get(quote, Protocols.FindByCycle((int)row.Cycle).GetCycleEnd((int)row.Cycle))
             });
         }
@@ -771,11 +810,13 @@ namespace Tzkt.Api.Repositories
                         break;
                     case "activeStake":
                         foreach (var row in rows)
-                            result[j++][i] = row.ActiveStake;
+                            // result[j++][i] = row.ActiveStake;
+                            result[j++][i] = row.BakingPower;
                         break;
                     case "selectedStake":
                         foreach (var row in rows)
-                            result[j++][i] = row.SelectedStake;
+                            // result[j++][i] = row.SelectedStake;
+                            result[j++][i] = row.TotalBakingPower;
                         break;
                     case "doubleBakingRewards":
                         foreach (var row in rows)
