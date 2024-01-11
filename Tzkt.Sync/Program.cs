@@ -88,7 +88,12 @@ while (true)
 
         var migrations = db.Database.GetMigrations().ToList();
         var applied = db.Database.GetAppliedMigrations().ToList();
-
+        foreach (var money in migrations) {
+            Console.WriteLine(money);
+        }
+        foreach (var money in applied) {
+            Console.WriteLine(money);
+        }
         for (int i = 0; i < Math.Min(migrations.Count, applied.Count); i++)
         {
             if (migrations[i] != applied[i])

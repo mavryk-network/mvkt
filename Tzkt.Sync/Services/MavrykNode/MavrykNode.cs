@@ -55,6 +55,12 @@ namespace Tzkt.Sync.Services
                     : DateTime.UtcNow.AddSeconds(1);
 
                 #region update last sync
+                Console.WriteLine("TRYING TO UPDATE");
+                Console.WriteLine(header.Level);
+                Console.WriteLine(Header?.Level);
+                Console.WriteLine(DateTime.UtcNow);
+                Console.WriteLine(NextSyncStateUpdate);
+                Console.WriteLine(nameof(TzktContext.AppState));
                 if (header.Level != Header?.Level || DateTime.UtcNow >= NextSyncStateUpdate)
                 {
                     try

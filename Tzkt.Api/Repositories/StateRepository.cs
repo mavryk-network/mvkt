@@ -16,6 +16,7 @@ namespace Tzkt.Api.Repositories
         public State Get()
         {
             var appState = State.Current;
+            Console.WriteLine("GOT STATE");
             return new State
             {
                 Chain = appState.Chain,

@@ -39,6 +39,7 @@ namespace Tzkt.Api.Services.Cache
 
         public void UpdateSyncState(int knownHead, DateTime lastSync)
         {
+            Console.WriteLine("UPDATE");
             Current.KnownHead = knownHead;
             Current.LastSync = lastSync;
         }
