@@ -8,7 +8,6 @@ namespace Tzkt.Data.Migrations
         #region static
         public static void AddNotificationTrigger(MigrationBuilder builder, string name, string table, string column, string payload)
         {
-            Console.WriteLine(table + " " + column);
             builder.Sql($@"
                 CREATE OR REPLACE FUNCTION notify_{name}() RETURNS TRIGGER AS $$
                     BEGIN

@@ -78,15 +78,12 @@ namespace Tzkt.Api.Services.Sync
 
                 using var db = new NpgsqlConnection(ConnectionString);
                 db.Notification += OnNotification;
-                Console.WriteLine("LISTEN1");
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     try
                     {
                         if (db.State != ConnectionState.Open)
                         {
-
-                            Console.WriteLine("LISTEN2");
                             await db.OpenAsync(cancellationToken);
                             await db.ExecuteAsync($@"
                                 LISTEN {SyncStateChanged};
@@ -111,7 +108,6 @@ namespace Tzkt.Api.Services.Sync
                         await Task.Delay(1000, cancellationToken);
                     }
                 }
-                Console.WriteLine("Remove");
                 db.Notification -= OnNotification;
             }
             catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested) { }
@@ -136,7 +132,6 @@ namespace Tzkt.Api.Services.Sync
                 return;
             }
 
-            Console.WriteLine("UPDATESTATE");
             if (e.Channel == SyncStateChanged)
             {
                 var separator = e.Payload.IndexOf(':');
@@ -306,7 +301,6 @@ namespace Tzkt.Api.Services.Sync
     {
         public static void AddStateListener(this IServiceCollection services)
         {
-            Console.WriteLine("STATE LISTENER");
             services.AddHostedService<StateListener>();
         }
     }
