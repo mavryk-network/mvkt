@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Mvkt.Api.Models;
 using Mvkt.Api.Repositories;
+using Mvkt.Api.Services;
+using Mvkt.Api.Services.Delegation;
 
 namespace Mvkt.Api.Controllers
 {
@@ -12,11 +14,19 @@ namespace Mvkt.Api.Controllers
     {
         private readonly RewardsRepository Rewards;
         private readonly StakingRepository Staking;
+        private readonly ResponseCacheService ResponseCache;
+        private readonly DelegationSummaryService DelegationSummaryService;
 
-        public RewardsController(RewardsRepository rewards, StakingRepository staking)
+        public RewardsController(
+            RewardsRepository rewards,
+            StakingRepository staking,
+            ResponseCacheService responseCache,
+            DelegationSummaryService delegationSummaryService)
         {
             Rewards = rewards;
             Staking = staking;
+            ResponseCache = responseCache;
+            DelegationSummaryService = delegationSummaryService;
         }
 
         /// <summary>
@@ -169,6 +179,33 @@ namespace Mvkt.Api.Controllers
         public async Task<DelegatorRewards> GetDelegatorRewardsByCycle([Required][Address] string address, [Min(0)] int cycle, Symbols quote = Symbols.None)
         {
             return (await Rewards.GetDelegatorRewards(address, cycle, null, null, 100, quote)).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Get delegation and staking information for a delegator
+        /// </summary>
+        /// <remarks>
+        /// Returns comprehensive delegation and staking information for the specified account.
+        /// Consolidates data from multiple sources: account status, expected rewards from cycle data,
+        /// actual rewards (transactions and restake events), payment status per validator and per cycle.
+        /// </remarks>
+        /// <param name="address">Delegator address</param>
+        /// <param name="legacy">If `true` (by default), the account is resolved using legacy semantics. This is a part of a deprecation mechanism, allowing smooth migration.</param>
+        /// <returns></returns>
+        [HttpGet("delegators/{address}/summary")]
+        public async Task<ActionResult<DelegationInfo>> GetDelegationInfo(
+            [Required][Address] string address,
+            bool legacy = true)
+        {
+            var query = ResponseCacheService.BuildKey(Request.Path.Value, ("legacy", legacy));
+
+            if (ResponseCache.TryGet(query, out var cached))
+                return this.Bytes(cached);
+
+            var res = await DelegationSummaryService.GetDelegationInfoAsync(address, legacy);
+            cached = ResponseCache.Set(query, res);
+
+            return this.Bytes(cached);
         }
 
         /// <summary>

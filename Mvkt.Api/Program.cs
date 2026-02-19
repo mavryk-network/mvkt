@@ -87,7 +87,7 @@ builder.Services.AddSingleton(serviceProvider =>
     var config = serviceProvider.GetRequiredService<IConfiguration>();
     return config.GetSection("Delegation").Get<DelegationConfig>() ?? new DelegationConfig();
 });
-builder.Services.AddTransient<AccountDelegationInfoService>();
+builder.Services.AddTransient<DelegationSummaryService>();
 
 builder.Services.AddAuthService(builder.Configuration);
 builder.Services.AddSingleton<RpcHelpers>();

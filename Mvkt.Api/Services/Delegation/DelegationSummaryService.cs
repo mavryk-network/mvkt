@@ -10,26 +10,26 @@ namespace Mvkt.Api.Services.Delegation
     /// Service for building comprehensive delegation and staking information for an account
     /// Consolidates data from multiple endpoints (account, rewards, staking, transactions, staking updates)
     /// </summary>
-    public class AccountDelegationInfoService
+    public class DelegationSummaryService
     {
         readonly AccountRepository Accounts;
         readonly RewardsRepository Rewards;
         readonly StakingRepository Staking;
         readonly OperationRepository Operations;
         readonly VotingRepository Voting;
-        readonly ILogger<AccountDelegationInfoService> Logger;
+        readonly ILogger<DelegationSummaryService> Logger;
         readonly AccountsCache AccountsCache;
         readonly ProtocolsCache Protocols;
         readonly TimeCache Times;
         readonly DelegationConfig DelegationConfig;
 
-        public AccountDelegationInfoService(
+        public DelegationSummaryService(
             AccountRepository accounts,
             RewardsRepository rewards,
             StakingRepository staking,
             OperationRepository operations,
             VotingRepository voting,
-            ILogger<AccountDelegationInfoService> logger,
+            ILogger<DelegationSummaryService> logger,
             AccountsCache accountsCache,
             ProtocolsCache protocols,
             TimeCache times,
@@ -173,7 +173,7 @@ namespace Mvkt.Api.Services.Delegation
                 var rewards = await Rewards.GetDelegatorRewards(
                     address,
                     cycle: null,
-                    sort: new SortParameter { Asc = "cycle" },
+                    sort: new SortParameter { Desc = "cycle" },
                     offset: new OffsetParameter { El = 0 },
                     limit: 10000,
                     quote: Symbols.None

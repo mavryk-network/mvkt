@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Npgsql;
 using Mvkt.Api.Models;
 using Mvkt.Api.Services.Cache;
