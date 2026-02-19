@@ -87,6 +87,43 @@ namespace Mvkt.Api.Repositories
             return await db.QueryAsync(sql.Query, sql.Params);
         }
 
+        /// <summary>
+        /// Get current staked balance per baker for a staker (aggregated from StakingUpdates in one query).
+        /// Type: Stake=0 +Restake=2 add to balance, Unstake=1 +SlashStaked=4 subtract; Finalize/SlashUnstaked do not change staked.
+        /// Returns baker address and alias from Accounts in the same query (no cache lookups).
+        /// </summary>
+        public async Task<IEnumerable<StakerData>> GetStakerBalancesByBakerAsync(int stakerId)
+        {
+            const string sql = @"
+                WITH agg AS (
+                    SELECT su.""BakerId"",
+                        SUM(CASE su.""Type"" WHEN 0 THEN su.""Amount"" WHEN 2 THEN su.""Amount"" WHEN 1 THEN -su.""Amount"" WHEN 4 THEN -su.""Amount"" ELSE 0 END)::bigint AS ""StakedBalance""
+                    FROM ""StakingUpdates"" su
+                    WHERE su.""StakerId"" = @stakerId
+                    GROUP BY su.""BakerId""
+                )
+                SELECT baker.""Address"" AS ""BakerAddress"", baker.""Extras""#>>'{profile,alias}' AS ""BakerAlias"", agg.""StakedBalance""
+                FROM agg
+                INNER JOIN ""Accounts"" baker ON baker.""Id"" = agg.""BakerId""
+                WHERE agg.""StakedBalance"" > 0";
+            await using var db = await DataSource.OpenConnectionAsync();
+            return await db.QueryAsync<StakerData>(sql, new { stakerId });
+        }
+
+        /// <summary>
+        /// Get levels of restake events for a staker (for reward date range). Type 2 = Restake.
+        /// </summary>
+        public async Task<IEnumerable<int>> GetStakerRestakeLevelsAsync(int stakerId)
+        {
+            const string sql = @"
+                SELECT ""Level""
+                FROM ""StakingUpdates""
+                WHERE ""StakerId"" = @stakerId AND ""Type"" = 2
+                ORDER BY ""Id""";
+            await using var db = await DataSource.OpenConnectionAsync();
+            return await db.QueryAsync<int>(sql, new { stakerId });
+        }
+
         public async Task<int> GetStakingUpdatesCount(StakingUpdateFilter filter)
         {
             var sql = new SqlBuilder(@"

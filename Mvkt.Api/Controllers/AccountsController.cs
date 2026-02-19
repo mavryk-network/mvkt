@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Mvkt.Api.Models;
 using Mvkt.Api.Repositories;
 using Mvkt.Api.Services;
 using Mvkt.Api.Services.Cache;
+using Mvkt.Api.Services.Delegation;
 
 namespace Mvkt.Api.Controllers
 {
@@ -17,14 +18,22 @@ namespace Mvkt.Api.Controllers
         readonly ReportRepository Reports;
         readonly StateCache State;
         readonly ResponseCacheService ResponseCache;
+        readonly AccountDelegationInfoService DelegationInfoService;
 
-        public AccountsController(AccountRepository accounts, BalanceHistoryRepository history, ReportRepository reports, StateCache state, ResponseCacheService responseCache)
+        public AccountsController(
+            AccountRepository accounts,
+            BalanceHistoryRepository history,
+            ReportRepository reports,
+            StateCache state,
+            ResponseCacheService responseCache,
+            AccountDelegationInfoService delegationInfoService)
         {
             Accounts = accounts;
             History = history;
             Reports = reports;
             State = state;
             ResponseCache = responseCache;
+            DelegationInfoService = delegationInfoService;
         }
 
         /// <summary>
@@ -175,13 +184,40 @@ namespace Mvkt.Api.Controllers
             [Required][Address] string address,
             bool legacy = true)
         {
-            var query = ResponseCacheService.BuildKey(Request.Path.Value, ("legacy", legacy));  
+            var query = ResponseCacheService.BuildKey(Request.Path.Value, ("legacy", legacy));
 
             if (ResponseCache.TryGet(query, out var cached))
                 return this.Bytes(cached);
 
             var res = await Accounts.Get(address, legacy);
             cached = ResponseCache.Set(query, res);
+            return this.Bytes(cached);
+        }
+
+        /// <summary>
+        /// Get delegation and staking information for an account
+        /// </summary>
+        /// <remarks>
+        /// Returns comprehensive delegation and staking information for the specified account.
+        /// Consolidates data from multiple sources: account status, expected rewards from cycle data,
+        /// actual rewards (transactions and restake events), payment status per validator and per cycle.
+        /// </remarks>
+        /// <param name="address">Account address</param>
+        /// <param name="legacy">If `true` (by default), the account is resolved using legacy semantics. This is a part of a deprecation mechanism, allowing smooth migration.</param>
+        /// <returns></returns>
+        [HttpGet("{address}/delegation-info")]
+        public async Task<ActionResult<DelegationInfo>> GetDelegationInfo(
+            [Required][Address] string address,
+            bool legacy = true)
+        {
+            var query = ResponseCacheService.BuildKey(Request.Path.Value, ("legacy", legacy));
+
+            if (ResponseCache.TryGet(query, out var cached))
+                return this.Bytes(cached);
+
+            var res = await DelegationInfoService.GetDelegationInfoAsync(address, legacy);
+            cached = ResponseCache.Set(query, res);
+
             return this.Bytes(cached);
         }
 

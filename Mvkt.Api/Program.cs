@@ -11,6 +11,7 @@ using Mvkt.Api;
 using Mvkt.Api.Repositories;
 using Mvkt.Api.Services;
 using Mvkt.Api.Services.Auth;
+using Mvkt.Api.Services.Delegation;
 using Mvkt.Api.Services.Cache;
 using Mvkt.Api.Services.Sync;
 using Mvkt.Api.Swagger;
@@ -80,6 +81,13 @@ builder.Services.AddTransient<ContractEventsRepository>();
 builder.Services.AddTransient<DomainsRepository>();
 builder.Services.AddTransient<SmartRollupsRepository>();
 builder.Services.AddTransient<StakingRepository>();
+
+builder.Services.AddSingleton(serviceProvider =>
+{
+    var config = serviceProvider.GetRequiredService<IConfiguration>();
+    return config.GetSection("Delegation").Get<DelegationConfig>() ?? new DelegationConfig();
+});
+builder.Services.AddTransient<AccountDelegationInfoService>();
 
 builder.Services.AddAuthService(builder.Configuration);
 builder.Services.AddSingleton<RpcHelpers>();

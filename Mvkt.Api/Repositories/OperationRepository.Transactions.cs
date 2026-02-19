@@ -41,6 +41,28 @@ namespace Mvkt.Api.Repositories
             return await db.QueryFirstAsync<int>(sql.Query, sql.Params);
         }
 
+        /// <summary>
+        /// Get delegation payout aggregates: sum of amounts and count per sender, for transactions to target from given senders (e.g. validators). Status = applied.
+        /// Returns (SenderAddress, SenderAlias, Amount, Count, MinLevel, MaxLevel) per sender; address/alias from Accounts JOIN.
+        /// </summary>
+        public async Task<IReadOnlyList<(string SenderAddress, string SenderAlias, long Amount, int Count, int MinLevel, int MaxLevel)>> GetDelegationPayoutsToAccountAsync(int targetAccountId, IReadOnlyList<int> senderIds)
+        {
+            if (senderIds == null || senderIds.Count == 0)
+                return Array.Empty<(string, string, long, int, int, int)>();
+
+            const string sql = @"
+                SELECT acc.""Address"" AS ""SenderAddress"", acc.""Extras""#>>'{profile,alias}' AS ""SenderAlias"",
+                    SUM(o.""Amount"")::bigint AS ""Amount"", COUNT(*)::int AS ""Count"",
+                    MIN(o.""Level"")::int AS ""MinLevel"", MAX(o.""Level"")::int AS ""MaxLevel""
+                FROM ""TransactionOps"" o
+                INNER JOIN ""Accounts"" acc ON acc.""Id"" = o.""SenderId""
+                WHERE o.""TargetId"" = @targetAccountId AND o.""SenderId"" = ANY(@senderIds) AND o.""Status"" = 1
+                GROUP BY o.""SenderId"", acc.""Address"", acc.""Extras""";
+            await using var db = await DataSource.OpenConnectionAsync();
+            var rows = await db.QueryAsync<(string, string, long, int, int, int)>(sql, new { targetAccountId, senderIds = senderIds.ToArray() });
+            return rows.ToList();
+        }
+
         public async Task<IEnumerable<TransactionOperation>> GetTransactions(string hash, MichelineFormat format, Symbols quote)
         {
             var sql = $@"
