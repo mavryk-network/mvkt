@@ -1,8 +1,9 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Mvkt.Api.Models;
 using Mvkt.Api.Repositories;
+using Mvkt.Api.Services;
 
 namespace Mvkt.Api.Controllers
 {
@@ -12,11 +13,13 @@ namespace Mvkt.Api.Controllers
     {
         private readonly RewardsRepository Rewards;
         private readonly StakingRepository Staking;
+        private readonly ResponseCacheService ResponseCache;
 
-        public RewardsController(RewardsRepository rewards, StakingRepository staking)
+        public RewardsController(RewardsRepository rewards, StakingRepository staking, ResponseCacheService responseCache)
         {
             Rewards = rewards;
             Staking = staking;
+            ResponseCache = responseCache;
         }
 
         /// <summary>
@@ -221,13 +224,19 @@ namespace Mvkt.Api.Controllers
             [FromQuery] int? cycle = null,
             [FromQuery] int cyclesLimit = 10000)
         {
+            var query = ResponseCacheService.BuildKey(Request.Path.Value, ("cycle", cycle), ("cyclesLimit", cyclesLimit));
+
+            if (ResponseCache.TryGet(query, out var cached))
+                return this.Bytes(cached);
+
             var stats = await Rewards.GetBakerStats(address, cycle, cyclesLimit);
             if (stats == null)
                 return NotFound();
 
             stats.Apy = await Staking.GetBakerApy(address);
 
-            return Ok(stats);
+            cached = ResponseCache.Set(query, stats);
+            return this.Bytes(cached);
         }
     }
 }
