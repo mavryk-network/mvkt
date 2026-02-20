@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -67,7 +67,7 @@ namespace Mvkt.Sync.Services.Cache
         {
             if (!CachedBlocks.TryGetValue(level, out var block))
             {
-                block = await Db.Blocks.FirstOrDefaultAsync(x => x.Level == level)
+                block = await Db.Blocks.OrderBy(x => x.Id).FirstOrDefaultAsync(x => x.Level == level)
                     ?? throw new Exception($"Block #{level} doesn't exist");
 
                 Add(block);

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Mvkt.Api.Models;
@@ -28,7 +28,7 @@ namespace Mvkt.Api.Controllers
         /// <param name="address">Baker address</param>
         /// <returns></returns>
         [HttpGet("bakers/{address}/count")]
-        public Task<int> GetBakerRewardsCount([Required][TzAddress] string address)
+        public Task<int> GetBakerRewardsCount([Required][MvAddress] string address)
         {
             return Rewards.GetBakerRewardsCount(address);
         }
@@ -49,7 +49,7 @@ namespace Mvkt.Api.Controllers
         /// <returns></returns>
         [HttpGet("bakers/{address}")]
         public async Task<ActionResult<IEnumerable<BakerRewards>>> GetBakerRewards(
-            [Required][TzAddress] string address,
+            [Required][MvAddress] string address,
             Int32Parameter cycle,
             SelectParameter select,
             SortParameter sort,
@@ -90,7 +90,7 @@ namespace Mvkt.Api.Controllers
         // deprecated
         [OpenApiIgnore]
         [HttpGet("bakers/{address}/{cycle:int}")]
-        public async Task<BakerRewards> GetBakerRewardsByCycle([Required][TzAddress] string address, [Min(0)] int cycle, Symbols quote = Symbols.None)
+        public async Task<BakerRewards> GetBakerRewardsByCycle([Required][MvAddress] string address, [Min(0)] int cycle, Symbols quote = Symbols.None)
         {
             return (await Rewards.GetBakerRewards(address, cycle, null, null, 100, quote)).FirstOrDefault();
         }
@@ -183,7 +183,7 @@ namespace Mvkt.Api.Controllers
         /// <param name="limit">Maximum number of delegators to return</param>
         /// <returns></returns>
         [HttpGet("split/{baker}/{cycle:int}")]
-        public Task<RewardSplit> GetRewardSplit([Required][TzAddress] string baker, [Min(0)] int cycle, int offset = 0, [Range(0, 10000)] int limit = 100)
+        public Task<RewardSplit> GetRewardSplit([Required][MvAddress] string baker, [Min(0)] int cycle, int offset = 0, [Range(0, 10000)] int limit = 100)
         {
             return Rewards.GetRewardSplit(baker, cycle, offset, limit);
         }
@@ -199,7 +199,7 @@ namespace Mvkt.Api.Controllers
         /// <param name="delegator">Delegator address</param>
         /// <returns></returns>
         [HttpGet("split/{baker}/{cycle:int}/{delegator}")]
-        public Task<SplitDelegator> GetRewardSplitDelegator([Required][TzAddress] string baker, [Min(0)] int cycle, [Required][Address] string delegator)
+        public Task<SplitDelegator> GetRewardSplitDelegator([Required][MvAddress] string baker, [Min(0)] int cycle, [Required][Address] string delegator)
         {
             return Rewards.GetRewardSplitDelegator(baker, cycle, delegator);
         }
@@ -209,15 +209,19 @@ namespace Mvkt.Api.Controllers
         /// </summary>
         /// <remarks>
         /// Returns aggregated statistics for a baker based on historical rewards data.
-        /// Includes performance metrics, reliability, luck, total income, fees, and more.
+        /// If cycle is set, returns stats for that cycle only. Otherwise aggregates over the last cyclesLimit cycles.
         /// </remarks>
         /// <param name="address">Baker address (starting with mv)</param>
+        /// <param name="cycle">If set, return stats for this cycle only. Otherwise use cyclesLimit.</param>
+        /// <param name="cyclesLimit">When cycle is not set: max number of recent cycles to aggregate. Default 10000.</param>
         /// <returns></returns>
         [HttpGet("bakers/{address}/stats")]
         public async Task<ActionResult<BakerStats>> GetBakerStats(
-            [Required][TzAddress] string address)
+            [Required][MvAddress] string address,
+            [FromQuery] int? cycle = null,
+            [FromQuery] int cyclesLimit = 10000)
         {
-            var stats = await Rewards.GetBakerStats(address);
+            var stats = await Rewards.GetBakerStats(address, cycle, cyclesLimit);
             if (stats == null)
                 return NotFound();
 

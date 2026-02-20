@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Mvkt.Api.Models;
@@ -235,7 +235,7 @@ namespace Mvkt.Api.Controllers
         /// <returns></returns>
         [HttpGet("{address}/delegators")]
         public async Task<ActionResult<IEnumerable<Delegator>>> GetDelegators(
-            [Required][TzAddress] string address,
+            [Required][MvAddress] string address,
             AccountTypeParameter type,
             Int64Parameter balance,
             Int32Parameter delegationLevel,

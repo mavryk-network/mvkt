@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Mvkt.Api.Models;
@@ -112,7 +112,7 @@ namespace Mvkt.Api.Controllers
         [OpenApiIgnore]
         [HttpGet("schedule")]
         public async Task<ActionResult<IEnumerable<BakingRight>>> GetSchedule(
-            [Required][TzAddress] string baker,
+            [Required][MvAddress] string baker,
             [Required] DateTimeOffset from,
             [Required] DateTimeOffset to,
             [Min(0)] int maxRound = 0)

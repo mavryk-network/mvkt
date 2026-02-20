@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Mvkt.Api.Repositories;
 
@@ -90,7 +90,7 @@ namespace Mvkt.Api.Controllers
         /// <param name="address">Delegate address (starting with mv)</param>
         /// <returns></returns>
         [HttpGet("{address}")]
-        public Task<Models.Delegate> GetByAddress([Required][TzAddress] string address)
+        public Task<Models.Delegate> GetByAddress([Required][MvAddress] string address)
         {
             return Accounts.GetDelegate(address);
         }

@@ -1,8 +1,8 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace System.ComponentModel.DataAnnotations
 {
-    public sealed class TzAddressAttribute : ValidationAttribute
+    public sealed class MvAddressAttribute : ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {

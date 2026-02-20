@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Mvkt.Data.Models
 {
@@ -98,6 +98,10 @@ namespace Mvkt.Data.Models
 
             modelBuilder.Entity<BakerCycle>()
                 .HasIndex(x => x.BakerId);
+
+            modelBuilder.Entity<BakerCycle>()
+                .HasIndex(x => new { x.BakerId, x.Cycle })
+                .IsDescending(false, true);
             #endregion
         }
     }

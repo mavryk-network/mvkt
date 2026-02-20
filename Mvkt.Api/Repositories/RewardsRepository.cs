@@ -1,4 +1,6 @@
-﻿using Dapper;
+using System.Diagnostics;
+using Dapper;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using Mvkt.Api.Models;
 using Mvkt.Api.Services.Cache;
@@ -11,13 +13,15 @@ namespace Mvkt.Api.Repositories
         readonly AccountsCache Accounts;
         readonly ProtocolsCache Protocols;
         readonly QuotesCache Quotes;
+        readonly ILogger<RewardsRepository> Logger;
 
-        public RewardsRepository(NpgsqlDataSource dataSource, AccountsCache accounts, ProtocolsCache protocols, QuotesCache quotes)
+        public RewardsRepository(NpgsqlDataSource dataSource, AccountsCache accounts, ProtocolsCache protocols, QuotesCache quotes, ILogger<RewardsRepository> logger = null)
         {
             DataSource = dataSource;
             Accounts = accounts;
             Protocols = protocols;
             Quotes = quotes;
+            Logger = logger;
         }
 
         #region baker
@@ -2185,50 +2189,39 @@ namespace Mvkt.Api.Repositories
         #endregion
 
         #region baker stats
-        public async Task<BakerStats> GetBakerStats(string address)
+        public async Task<BakerStats> GetBakerStats(string address, int? cycle = null, int cyclesLimit = 10000)
         {
             if (await Accounts.GetAsync(address) is not RawDelegate baker)
                 return null;
 
-            var rewards = await GetBakerRewards(address, null, null, null, 10000, Symbols.None);
-            var rewardsList = rewards.ToList();
+            var aggTask = GetBakerStatsAggregate(baker.Id, cycle, cyclesLimit);
+            var aliasTask = Accounts.GetAliasAsync(baker.Id);
+            await Task.WhenAll(aggTask, aliasTask);
 
-            if (!rewardsList.Any())
+            var agg = await aggTask;
+            if (agg == null)
                 return null;
 
-            var alias = await Accounts.GetAliasAsync(baker.Id);
+            var alias = await aliasTask;
 
-            var totalExpectedBlocks = rewardsList.Sum(r => (long)Math.Round(r.ExpectedBlocks));
-            var totalBlocks = rewardsList.Sum(r => (long)r.Blocks);
-            var totalMissedBlocks = rewardsList.Sum(r => (long)r.MissedBlocks);
-
-            var totalExpectedAttestations = rewardsList.Sum(r => (long)Math.Round(r.ExpectedEndorsements));
-            var totalAttestations = rewardsList.Sum(r => (long)r.Endorsements);
-            var totalMissedAttestations = rewardsList.Sum(r => (long)r.MissedEndorsements);
-
-            var totalActualRewards = rewardsList.Sum(r =>
-                r.BlockRewardsDelegated + r.BlockRewardsStakedOwn + r.BlockRewardsStakedEdge + r.BlockRewardsStakedShared +
-                r.EndorsementRewardsDelegated + r.EndorsementRewardsStakedOwn + r.EndorsementRewardsStakedEdge + r.EndorsementRewardsStakedShared);
-            
-            var totalMissedRewards = rewardsList.Sum(r => r.MissedBlockRewards + r.MissedEndorsementRewards);
-            
-            var totalExpectedRewards = totalActualRewards + totalMissedRewards;
-
+            var totalExpectedRewards = agg.TotalActualRewards + agg.TotalMissedBlockRewards + agg.TotalMissedEndorsementRewards;
             var luck = totalExpectedRewards > 0
-                ? Math.Round((double)totalActualRewards / totalExpectedRewards * 100, 2)
+                ? Math.Round((double)agg.TotalActualRewards / totalExpectedRewards * 100, 2)
                 : 0.0;
 
-            var totalOpportunities = totalBlocks + totalMissedBlocks + totalAttestations + totalMissedAttestations;
-            var successfulOperations = totalBlocks + totalAttestations;
+            var totalOpportunities = agg.Blocks + agg.MissedBlocks + agg.Endorsements + agg.MissedEndorsements;
+            var successfulOperations = agg.Blocks + agg.Endorsements;
             var performance = totalOpportunities > 0
                 ? Math.Round((double)successfulOperations / totalOpportunities * 100, 2)
                 : 0.0;
 
-            var totalExpectedOperations = totalExpectedBlocks + totalExpectedAttestations;
-            var totalActualOperations = totalBlocks + totalAttestations;
+            var totalExpectedOperations = agg.TotalExpectedBlocks + agg.TotalExpectedEndorsements;
+            var totalActualOperations = agg.Blocks + agg.Endorsements;
             var reliability = totalExpectedOperations > 0
                 ? Math.Round((double)totalActualOperations / totalExpectedOperations * 100, 2)
                 : 0.0;
+
+            var kpis = MapAggregateToKpis(agg);
 
             return new BakerStats
             {
@@ -2237,8 +2230,187 @@ namespace Mvkt.Api.Repositories
                 Performance = performance,
                 Reliability = reliability,
                 TotalExpectedRewards = totalExpectedRewards,
-                TotalActualRewards = totalActualRewards
+                TotalActualRewards = agg.TotalActualRewards,
+                Cycle = agg.CyclesUsed == 1 ? agg.SingleCycle : (int?)null,
+                CyclesUsed = agg.CyclesUsed,
+                Kpis = kpis
             };
+        }
+
+        async Task<BakerStatsAggregate> GetBakerStatsAggregate(int bakerId, int? cycle, int cyclesLimit)
+        {
+            const string selectList = """
+                COUNT(*) AS "CyclesUsed",
+                MAX("Cycle") AS "SingleCycle",
+                ROUND(SUM("ExpectedBlocks"), 2)::bigint AS "TotalExpectedBlocks",
+                ROUND(SUM("ExpectedEndorsements"), 2)::bigint AS "TotalExpectedEndorsements",
+                SUM("Blocks") AS "Blocks",
+                SUM("MissedBlocks") AS "MissedBlocks",
+                SUM("Endorsements") AS "Endorsements",
+                SUM("MissedEndorsements") AS "MissedEndorsements",
+                SUM("BlockRewardsDelegated" + "BlockRewardsStakedOwn" + "BlockRewardsStakedEdge" + "BlockRewardsStakedShared") AS "TotalBlockRewards",
+                SUM("EndorsementRewardsDelegated" + "EndorsementRewardsStakedOwn" + "EndorsementRewardsStakedEdge" + "EndorsementRewardsStakedShared") AS "TotalEndorsementRewards",
+                SUM("BlockFees") AS "TotalBlockFees",
+                SUM("MissedBlockRewards") AS "TotalMissedBlockRewards",
+                SUM("MissedEndorsementRewards") AS "TotalMissedEndorsementRewards",
+                SUM("MissedBlockFees") AS "TotalMissedBlockFees",
+                SUM("NonceRevelationRewardsDelegated" + "NonceRevelationRewardsStakedOwn" + "NonceRevelationRewardsStakedEdge" + "NonceRevelationRewardsStakedShared"
+                    + "VdfRevelationRewardsDelegated" + "VdfRevelationRewardsStakedOwn" + "VdfRevelationRewardsStakedEdge" + "VdfRevelationRewardsStakedShared") AS "TotalRevelationRewards",
+                SUM("NonceRevelationLosses") AS "TotalNonceRevelationLosses",
+                SUM("DoubleBakingRewards" + "DoubleEndorsingRewards") AS "TotalAccusationBounties",
+                SUM("DoubleBakingLostStaked" + "DoubleBakingLostUnstaked" + "DoubleEndorsingLostStaked" + "DoubleEndorsingLostUnstaked") AS "SlashedRewards",
+                SUM("DoubleBakingLostStaked" + "DoubleBakingLostUnstaked" + "DoubleEndorsingLostStaked" + "DoubleEndorsingLostUnstaked"
+                    + "DoubleBakingLostExternalStaked" + "DoubleBakingLostExternalUnstaked" + "DoubleEndorsingLostExternalStaked" + "DoubleEndorsingLostExternalUnstaked") AS "TotalSlashed",
+                SUM("BlockRewardsDelegated" + "EndorsementRewardsDelegated" + "BlockRewardsStakedShared" + "EndorsementRewardsStakedShared") AS "ExpectedDistribution",
+                SUM(CASE WHEN "MissedBlockRewards" > 0 OR "MissedEndorsementRewards" > 0 THEN 1 ELSE 0 END)::int AS "MissedRights",
+                SUM("BlockRewardsDelegated" + "EndorsementRewardsDelegated") AS "TotalRewardsDelegated",
+                SUM("BlockRewardsStakedShared" + "EndorsementRewardsStakedShared") AS "TotalRewardsStakedShared",
+                SUM("BlockRewardsStakedOwn" + "EndorsementRewardsStakedOwn") AS "TotalRewardsOwnStake",
+                SUM("BlockRewardsStakedEdge" + "EndorsementRewardsStakedEdge") AS "TotalEdgeFees"
+                """;
+
+            const string cteColumns = """
+                "Cycle", "ExpectedBlocks", "ExpectedEndorsements", "Blocks", "MissedBlocks", "Endorsements", "MissedEndorsements",
+                "BlockRewardsDelegated", "BlockRewardsStakedOwn", "BlockRewardsStakedEdge", "BlockRewardsStakedShared",
+                "EndorsementRewardsDelegated", "EndorsementRewardsStakedOwn", "EndorsementRewardsStakedEdge", "EndorsementRewardsStakedShared",
+                "BlockFees", "MissedBlockRewards", "MissedEndorsementRewards", "MissedBlockFees",
+                "NonceRevelationRewardsDelegated", "NonceRevelationRewardsStakedOwn", "NonceRevelationRewardsStakedEdge", "NonceRevelationRewardsStakedShared",
+                "VdfRevelationRewardsDelegated", "VdfRevelationRewardsStakedOwn", "VdfRevelationRewardsStakedEdge", "VdfRevelationRewardsStakedShared",
+                "NonceRevelationLosses",
+                "DoubleBakingRewards", "DoubleEndorsingRewards",
+                "DoubleBakingLostStaked", "DoubleBakingLostUnstaked", "DoubleEndorsingLostStaked", "DoubleEndorsingLostUnstaked",
+                "DoubleBakingLostExternalStaked", "DoubleBakingLostExternalUnstaked", "DoubleEndorsingLostExternalStaked", "DoubleEndorsingLostExternalUnstaked"
+                """;
+
+            string sql;
+            object param;
+            if (cycle.HasValue)
+            {
+                sql = $"""
+                    SELECT {selectList}
+                    FROM "BakerCycles"
+                    WHERE "BakerId" = @bakerId AND "Cycle" = @cycle
+                    """;
+                param = new { bakerId, cycle = cycle.Value };
+            }
+            else
+            {
+                sql = $"""
+                    WITH selected_cycles AS (
+                        SELECT {cteColumns}
+                        FROM "BakerCycles"
+                        WHERE "BakerId" = @bakerId
+                        ORDER BY "Cycle" DESC
+                        LIMIT @limit
+                    )
+                    SELECT {selectList}
+                    FROM selected_cycles
+                    """;
+                param = new { bakerId, limit = cyclesLimit };
+            }
+
+            await using var db = await DataSource.OpenConnectionAsync();
+            var sw = Stopwatch.StartNew();
+            var row = await db.QuerySingleOrDefaultAsync<BakerStatsAggregate>(sql, param);
+            sw.Stop();
+            if (Logger?.IsEnabled(LogLevel.Debug) == true)
+                Logger.LogDebug("GetBakerStatsAggregate: bakerId={BakerId}, cycle={Cycle}, cyclesLimit={CyclesLimit}, cyclesReturned={Cycles}, elapsedMs={ElapsedMs}",
+                    bakerId, cycle, cyclesLimit, row?.CyclesUsed ?? 0, sw.ElapsedMilliseconds);
+            return row?.CyclesUsed > 0 ? row : null;
+        }
+
+        static BakerStatsKpis MapAggregateToKpis(BakerStatsAggregate a)
+        {
+            var totalBlockAndEndorsement = a.TotalBlockRewards + a.TotalEndorsementRewards;
+            var totalActualRewards = totalBlockAndEndorsement + a.TotalBlockFees;
+            var totalMissedRewards = a.TotalMissedBlockRewards + a.TotalMissedEndorsementRewards + a.TotalMissedBlockFees;
+            var kpisExpectedRewards = totalActualRewards + totalMissedRewards;
+            var invExpected = kpisExpectedRewards > 0 ? 100.0 / kpisExpectedRewards : 0.0;
+            var monetaryPerformance = kpisExpectedRewards > 0 ? (double)totalActualRewards * invExpected : 100.0;
+            var luckRatio = kpisExpectedRewards > 0 ? (double)totalActualRewards / kpisExpectedRewards : 1.0;
+
+            var totalIncome = totalActualRewards + a.TotalRevelationRewards + a.TotalAccusationBounties;
+            var extraRewards = a.TotalRevelationRewards + a.TotalBlockFees + a.TotalAccusationBounties;
+            var lostRewards = totalMissedRewards + a.TotalNonceRevelationLosses;
+
+            var totalRewards = totalBlockAndEndorsement;
+            var totalActivity = a.Blocks + a.Endorsements;
+            var totalMissedActivity = a.MissedBlocks + a.MissedEndorsements;
+            var totalOps = totalActivity + totalMissedActivity;
+            var performanceRate = totalOps > 0 ? (double)totalActivity / totalOps * 100.0 : 100.0;
+            var avgRewardsPerCycle = a.CyclesUsed > 0 ? (double)totalRewards / a.CyclesUsed : 0.0;
+            var totalDistributable = a.TotalRewardsDelegated + a.TotalRewardsStakedShared + a.TotalRewardsOwnStake + a.TotalEdgeFees;
+            var invDistributable = totalDistributable > 0 ? 100.0 / totalDistributable : 0.0;
+            var delegatorSharePercent = (double)a.TotalRewardsDelegated * invDistributable;
+            var coStakerSharePercent = (double)a.TotalRewardsStakedShared * invDistributable;
+            var validatorSharePercent = (double)(a.TotalRewardsOwnStake + a.TotalEdgeFees) * invDistributable;
+
+            return new BakerStatsKpis
+            {
+                TotalIncome = totalIncome,
+                ExtraRewards = extraRewards,
+                LostRewards = lostRewards,
+                SlashedRewards = a.SlashedRewards,
+                TotalSlashed = a.TotalSlashed,
+                BlocksBaked = a.Blocks,
+                BlocksProposed = a.Blocks + a.MissedBlocks,
+                TotalBlockRewards = a.TotalBlockRewards,
+                TotalEndorsementRewards = a.TotalEndorsementRewards,
+                EndorsementsMade = a.Endorsements,
+                EndorsementsMissed = a.MissedEndorsements,
+                ExpectedDistribution = a.ExpectedDistribution,
+                TechnicalReliability = Math.Round(monetaryPerformance, 2),
+                MonetaryPerformance = Math.Round(monetaryPerformance, 2),
+                FairEfficiency = Math.Round(monetaryPerformance, 2),
+                LuckRatio = Math.Round(luckRatio, 4),
+                TotalExpectedRewards = kpisExpectedRewards,
+                TotalActualRewards = totalActualRewards,
+                MissedRights = a.MissedRights,
+                TotalRewards = totalRewards,
+                TotalBlockFees = a.TotalBlockFees,
+                TotalRevelationRewards = a.TotalRevelationRewards,
+                MissedBlocks = a.MissedBlocks,
+                MissedEndorsements = a.MissedEndorsements,
+                PerformanceRate = Math.Round(performanceRate, 2),
+                AvgRewardsPerCycle = Math.Round(avgRewardsPerCycle, 2),
+                TotalRewardsDelegated = a.TotalRewardsDelegated,
+                TotalRewardsStakedShared = a.TotalRewardsStakedShared,
+                TotalRewardsOwnStake = a.TotalRewardsOwnStake,
+                TotalEdgeFees = a.TotalEdgeFees,
+                DelegatorSharePercent = Math.Round(delegatorSharePercent, 2),
+                CoStakerSharePercent = Math.Round(coStakerSharePercent, 2),
+                ValidatorSharePercent = Math.Round(validatorSharePercent, 2)
+            };
+        }
+
+        sealed class BakerStatsAggregate
+        {
+            public int CyclesUsed { get; init; }
+            public int SingleCycle { get; init; }
+            public long TotalExpectedBlocks { get; init; }
+            public long TotalExpectedEndorsements { get; init; }
+            public long Blocks { get; init; }
+            public long MissedBlocks { get; init; }
+            public long Endorsements { get; init; }
+            public long MissedEndorsements { get; init; }
+            public long TotalBlockRewards { get; init; }
+            public long TotalEndorsementRewards { get; init; }
+            public long TotalBlockFees { get; init; }
+            public long TotalMissedBlockRewards { get; init; }
+            public long TotalMissedEndorsementRewards { get; init; }
+            public long TotalMissedBlockFees { get; init; }
+            public long TotalRevelationRewards { get; init; }
+            public long TotalNonceRevelationLosses { get; init; }
+            public long TotalAccusationBounties { get; init; }
+            public long SlashedRewards { get; init; }
+            public long TotalSlashed { get; init; }
+            public long ExpectedDistribution { get; init; }
+            public int MissedRights { get; init; }
+            public long TotalRewardsDelegated { get; init; }
+            public long TotalRewardsStakedShared { get; init; }
+            public long TotalRewardsOwnStake { get; init; }
+            public long TotalEdgeFees { get; init; }
+            public long TotalActualRewards => TotalBlockRewards + TotalEndorsementRewards + TotalBlockFees;
         }
         #endregion
     }
