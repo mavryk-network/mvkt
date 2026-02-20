@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Mvkt.Data.Models;
 using Mvkt.Data.Models.Base;
 
@@ -8,7 +8,7 @@ namespace Mvkt.Sync.Protocols.Proto20
     {
         public DalPublishCommitmentCommit(ProtocolHandler protocol) : base(protocol) { }
 
-        public async Task Apply(Block block, JsonElement op, JsonElement content)
+        public new async Task Apply(Block block, JsonElement op, JsonElement content)
         {
             #region init
             var sender = await Cache.Accounts.GetAsync(content.RequiredString("source")) as User;
@@ -82,7 +82,7 @@ namespace Mvkt.Sync.Protocols.Proto20
             Db.DalPublishCommitmentOps.Add(operation);
         }
 
-        public async Task Revert(Block block, DalPublishCommitmentOperation operation)
+        public new async Task Revert(Block block, DalPublishCommitmentOperation operation)
         {
             var sender = await Cache.Accounts.GetAsync(operation.SenderId) as User;
             var senderDelegate = sender as Data.Models.Delegate ?? Cache.Accounts.GetDelegate(sender.DelegateId);

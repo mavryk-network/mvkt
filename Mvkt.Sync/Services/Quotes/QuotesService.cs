@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +36,7 @@ namespace Mvkt.Sync.Services
             Logger = logger;
         }
 
-        public async Task Init()
+        public Task Init()
         {
             Logger.LogInformation("Quote provider: {ProviderName} ({Mode})", Provider.GetType().Name, Config.Async ? "Async" : "Sync");
 
@@ -46,6 +46,7 @@ namespace Mvkt.Sync.Services
                 var totalMissed = state.Level - state.QuoteLevel;
                 Logger.LogInformation("{TotalMissed} quotes missed. QuotesSyncService will sync them in background.", totalMissed);
             }
+            return Task.CompletedTask;
         }
 
         public async Task<int> SyncBatch()
@@ -275,7 +276,7 @@ namespace Mvkt.Sync.Services
             state.QuoteGbp = last.Gbp;
         }
 
-        IQuote? LastQuote(AppState state)
+        IQuote LastQuote(AppState state)
         {
             if (state.QuoteLevel < 0)
                 return null;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -87,7 +87,7 @@ namespace Mvkt.Sync.Services
             return quotes.Count();
         }
 
-        async Task<List<MvktQuote>?> GetQuotes(DateTime from, DateTime to)
+        async Task<List<MvktQuote>> GetQuotes(DateTime from, DateTime to)
         {
             try
             {

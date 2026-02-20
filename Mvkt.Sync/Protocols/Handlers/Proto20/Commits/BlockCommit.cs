@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace Mvkt.Sync.Protocols.Proto20
 {
@@ -6,7 +6,7 @@ namespace Mvkt.Sync.Protocols.Proto20
     {
         public BlockCommit(ProtocolHandler protocol) : base(protocol) { }
 
-        public async Task ApplyRewards(JsonElement rawBlock)
+        public new async Task ApplyRewards(JsonElement rawBlock)
         {
             var proposer = Cache.Accounts.GetDelegate(Block.ProposerId);
             var producer = Cache.Accounts.GetDelegate(Block.ProducerId);
