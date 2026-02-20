@@ -1,10 +1,14 @@
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Mvkt.Data;
 
 #nullable disable
 
 namespace Mvkt.Data.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(MvktContext))]
+    [Migration("20250220100000_BakerCycles_BakerId_CycleDesc")]
     public partial class BakerCycles_BakerId_CycleDesc : Migration
     {
         /// <inheritdoc />
@@ -25,3 +29,4 @@ namespace Mvkt.Data.Migrations
         }
     }
 }
+
