@@ -2242,8 +2242,8 @@ namespace Mvkt.Api.Repositories
             const string selectList = """
                 COUNT(*) AS "CyclesUsed",
                 MAX("Cycle") AS "SingleCycle",
-                ROUND(SUM("ExpectedBlocks"), 2)::bigint AS "TotalExpectedBlocks",
-                ROUND(SUM("ExpectedEndorsements"), 2)::bigint AS "TotalExpectedEndorsements",
+                ROUND(SUM("ExpectedBlocks")::numeric, 2)::bigint AS "TotalExpectedBlocks",
+                ROUND(SUM("ExpectedEndorsements")::numeric, 2)::bigint AS "TotalExpectedEndorsements",
                 SUM("Blocks") AS "Blocks",
                 SUM("MissedBlocks") AS "MissedBlocks",
                 SUM("Endorsements") AS "Endorsements",
