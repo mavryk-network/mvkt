@@ -6,12 +6,12 @@ namespace Mvkt.Api.Models
     public class ActualRewards
     {
         /// <summary>
-        /// Total actual rewards received (micro tez)
+        /// Total actual rewards received
         /// </summary>
         public long TotalActualRewards { get; set; }
 
         /// <summary>
-        /// Delegation payouts received (micro tez)
+        /// Delegation payouts received
         /// </summary>
         public long DelegationPayouts { get; set; }
 
@@ -21,7 +21,7 @@ namespace Mvkt.Api.Models
         public int DelegationPayoutCount { get; set; }
 
         /// <summary>
-        /// Staking rewards auto-restaked (micro tez)
+        /// Staking rewards auto-restaked
         /// </summary>
         public long StakingRewardsRestaked { get; set; }
 
@@ -31,32 +31,32 @@ namespace Mvkt.Api.Models
         public int StakingRestakeCount { get; set; }
 
         /// <summary>
-        /// Expected delegation rewards (micro tez)
+        /// Expected delegation rewards
         /// </summary>
         public long ExpectedDelegationRewards { get; set; }
 
         /// <summary>
-        /// Expected staking rewards (micro tez)
+        /// Expected staking rewards
         /// </summary>
         public long ExpectedStakingRewards { get; set; }
 
         /// <summary>
-        /// Expected total rewards (micro tez)
+        /// Expected total rewards
         /// </summary>
         public long ExpectedTotalRewards { get; set; }
 
         /// <summary>
-        /// Pending delegation rewards not yet paid (micro tez)
+        /// Pending delegation rewards not yet paid
         /// </summary>
         public long PendingDelegation { get; set; }
 
         /// <summary>
-        /// Pending staking rewards (micro tez)
+        /// Pending staking rewards
         /// </summary>
         public long PendingStaking { get; set; }
 
         /// <summary>
-        /// Total pending rewards (micro tez)
+        /// Total pending rewards
         /// </summary>
         public long PendingTotal { get; set; }
 

@@ -8,10 +8,10 @@ namespace Mvkt.Api.Models
         /// <summary>
         /// Validator information
         /// </summary>
-        public ValidatorInfo Validator { get; set; }
+        public Alias Validator { get; set; }
 
         /// <summary>
-        /// Total rewards from this validator (micro tez)
+        /// Total rewards from this validator
         /// </summary>
         public long TotalRewards { get; set; }
 
@@ -31,12 +31,12 @@ namespace Mvkt.Api.Models
         public int LastCycle { get; set; }
 
         /// <summary>
-        /// Total staking rewards (auto-restaked) (micro tez)
+        /// Total staking rewards (auto-restaked)
         /// </summary>
         public long TotalStakingRewards { get; set; }
 
         /// <summary>
-        /// Total delegation rewards (paid out) (micro tez)
+        /// Total delegation rewards (paid out)
         /// </summary>
         public long TotalDelegationRewards { get; set; }
 

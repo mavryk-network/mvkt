@@ -16,47 +16,47 @@ namespace Mvkt.Api.Models
         public string Alias { get; set; }
 
         /// <summary>
-        /// Expected staking rewards (micro tez)
+        /// Expected staking rewards
         /// </summary>
         public long ExpectedStakingRewards { get; set; }
 
         /// <summary>
-        /// Expected delegation rewards (micro tez)
+        /// Expected delegation rewards
         /// </summary>
         public long ExpectedDelegationRewards { get; set; }
 
         /// <summary>
-        /// Expected total rewards (micro tez)
+        /// Expected total rewards
         /// </summary>
         public long ExpectedTotalGross { get; set; }
 
         /// <summary>
-        /// Actual delegation payouts received (micro tez)
+        /// Actual delegation payouts received
         /// </summary>
         public long ActualDelegationPayouts { get; set; }
 
         /// <summary>
-        /// Actual staking rewards restaked (micro tez)
+        /// Actual staking rewards restaked
         /// </summary>
         public long ActualStakingRestaked { get; set; }
 
         /// <summary>
-        /// Actual total received (micro tez)
+        /// Actual total received
         /// </summary>
         public long ActualTotalReceived { get; set; }
 
         /// <summary>
-        /// Pending delegation rewards (micro tez)
+        /// Pending delegation rewards
         /// </summary>
         public long PendingDelegation { get; set; }
 
         /// <summary>
-        /// Pending staking rewards (micro tez)
+        /// Pending staking rewards
         /// </summary>
         public long PendingStaking { get; set; }
 
         /// <summary>
-        /// Total pending rewards (micro tez)
+        /// Total pending rewards
         /// </summary>
         public long PendingTotal { get; set; }
 
@@ -86,9 +86,9 @@ namespace Mvkt.Api.Models
         public int LastCycle { get; set; }
 
         /// <summary>
-        /// Staking rewards by cycle
+        /// Staking rewards by cycle (validator is the one being tracked by this record)
         /// </summary>
-        public List<CycleStakingReward> StakingRewardsByCycle { get; set; }
+        public List<StakingRewardEvent> StakingRewardsByCycle { get; set; }
 
         /// <summary>
         /// Number of staking restake events

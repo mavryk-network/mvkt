@@ -11,32 +11,32 @@ namespace Mvkt.Api.Models
         public int Cycle { get; set; }
 
         /// <summary>
-        /// Total rewards for this cycle (micro tez)
+        /// Total rewards for this cycle
         /// </summary>
         public long Rewards { get; set; }
 
         /// <summary>
-        /// Delegated balance during this cycle (micro tez)
+        /// Delegated balance during this cycle
         /// </summary>
         public long DelegatedBalance { get; set; }
 
         /// <summary>
-        /// Staked balance during this cycle (micro tez)
+        /// Staked balance during this cycle
         /// </summary>
         public long StakedBalance { get; set; }
 
         /// <summary>
         /// Validator for this cycle
         /// </summary>
-        public ValidatorInfo Validator { get; set; }
+        public Alias Validator { get; set; }
 
         /// <summary>
-        /// Staking rewards for this cycle (micro tez)
+        /// Staking rewards for this cycle
         /// </summary>
         public long StakingRewards { get; set; }
 
         /// <summary>
-        /// Delegation rewards for this cycle (micro tez)
+        /// Delegation rewards for this cycle
         /// </summary>
         public long DelegationRewards { get; set; }
     }

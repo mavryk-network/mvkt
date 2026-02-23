@@ -11,7 +11,7 @@ namespace Mvkt.Api.Models
         public int Cycle { get; set; }
 
         /// <summary>
-        /// Expected reward for this cycle (micro tez)
+        /// Expected reward for this cycle
         /// </summary>
         public long ExpectedReward { get; set; }
 

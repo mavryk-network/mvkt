@@ -67,7 +67,7 @@ namespace Mvkt.Api.Services.Delegation
 
             int accountId = 0;
             bool isDelegating = false;
-            ValidatorInfo delegatedValidator = null;
+            Alias delegatedValidator = null;
             long delegatedBalance = 0;
             DateTime? delegationTime = null;
             long stakedBalance = 0;
@@ -78,7 +78,7 @@ namespace Mvkt.Api.Services.Delegation
                 accountId = user.Id;
                 isDelegating = user.Delegate != null;
                 delegatedValidator = user.Delegate != null 
-                    ? new ValidatorInfo { Address = user.Delegate.Address, Alias = user.Delegate.Alias }
+                    ? new Alias { Address = user.Delegate.Address, Name = user.Delegate.Alias }
                     : null;
                 delegatedBalance = user.Balance;
                 delegationTime = user.DelegationTime;
@@ -97,7 +97,7 @@ namespace Mvkt.Api.Services.Delegation
                 accountId = contract.Id;
                 isDelegating = contract.Delegate != null;
                 delegatedValidator = contract.Delegate != null
-                    ? new ValidatorInfo { Address = contract.Delegate.Address, Alias = contract.Delegate.Alias }
+                    ? new Alias { Address = contract.Delegate.Address, Name = contract.Delegate.Alias }
                     : null;
                 delegatedBalance = contract.Balance;
                 delegationTime = contract.DelegationTime;
@@ -296,7 +296,7 @@ namespace Mvkt.Api.Services.Delegation
 
                 var cycles = cycleInfo?.Cycles ?? new List<int>();
                 var alias = cycleInfo?.Alias ?? actualDelegation?.Alias ?? actualStaking?.Alias;
-                var stakingByCycle = actualStaking?.ByCycle ?? new List<CycleStakingReward>();
+                var stakingByCycle = actualStaking?.ByCycle ?? new List<StakingRewardEvent>();
                 var delegationCycles = cycleInfo?.DelegationByCycle ?? new List<CycleDelegationData>();
                 var sortedDelegationCycles = delegationCycles.Count > 0
                     ? delegationCycles.OrderBy(d => d.Cycle).ToList()
@@ -405,23 +405,24 @@ namespace Mvkt.Api.Services.Delegation
                             Amount = 0,
                             Count = 0,
                             Alias = reward.Baker?.Name,
-                            ByCycle = new List<CycleStakingReward>()
+                            ByCycle = new List<StakingRewardEvent>()
                         };
                         stakingRewardsByValidator[bakerAddress] = stakingData;
                     }
                     stakingData.Amount += stakingReward;
                     stakingData.Count += 1;
-                    stakingData.ByCycle.Add(new CycleStakingReward { Cycle = reward.Cycle, Amount = stakingReward, Timestamp = null });
-                    stakingRewardsRestaked += stakingReward;
-                    stakingRestakeCount += 1;
-                    allStakingRewardEvents.Add(new StakingRewardEvent
+                    var stakingEvent = new StakingRewardEvent
                     {
                         Cycle = reward.Cycle,
                         Amount = stakingReward,
                         Timestamp = null,
                         ValidatorAddress = bakerAddress,
                         ValidatorAlias = reward.Baker?.Name
-                    });
+                    };
+                    stakingData.ByCycle.Add(stakingEvent);
+                    stakingRewardsRestaked += stakingReward;
+                    stakingRestakeCount += 1;
+                    allStakingRewardEvents.Add(stakingEvent);
                 }
 
                 var validatorDelegationRewards = reward.BlockRewardsDelegated + reward.EndorsementRewardsDelegated;
@@ -629,7 +630,7 @@ namespace Mvkt.Api.Services.Delegation
         private DelegationSummary BuildDelegationSummary(
             Account account,
             bool isDelegating,
-            ValidatorInfo delegatedValidator,
+            Alias delegatedValidator,
             long delegatedBalance,
             DateTime? delegationTime,
             List<StakerData> stakingInfo,
@@ -642,13 +643,13 @@ namespace Mvkt.Api.Services.Delegation
 
             var stakedValidators = stakingInfo.Select(s => new StakedValidatorInfo
             {
-                Baker = new ValidatorInfo { Address = s.BakerAddress, Alias = s.BakerAlias },
+                Baker = new Alias { Address = s.BakerAddress, Name = s.BakerAlias },
                 StakedBalance = s.StakedBalance
             }).ToList();
 
             var rewardsByValidator = actualRewards.ByValidator.Select(v => new ValidatorRewardSummary
             {
-                Validator = new ValidatorInfo { Address = v.Address, Alias = v.Alias },
+                Validator = new Alias { Address = v.Address, Name = v.Alias },
                 TotalRewards = v.ActualTotalReceived,
                 CycleCount = v.CycleCount,
                 FirstCycle = v.FirstCycle,
@@ -684,7 +685,7 @@ namespace Mvkt.Api.Services.Delegation
                     Rewards = stakingReward + delegationReward,
                     DelegatedBalance = r.DelegatedBalance,
                     StakedBalance = r.StakedBalance,
-                    Validator = new ValidatorInfo { Address = r.Baker?.Address, Alias = r.Baker?.Name },
+                    Validator = new Alias { Address = r.Baker?.Address, Name = r.Baker?.Name },
                     StakingRewards = stakingReward,
                     DelegationRewards = delegationReward
                 };
@@ -807,7 +808,7 @@ namespace Mvkt.Api.Services.Delegation
             public long Amount { get; set; }
             public int Count { get; set; }
             public string Alias { get; set; }
-            public List<CycleStakingReward> ByCycle { get; set; }
+            public List<StakingRewardEvent> ByCycle { get; set; }
         }
 
         private class ValidatorExpectedData

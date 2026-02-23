@@ -43,7 +43,7 @@ namespace Mvkt.Api.Models
         public string Type { get; set; }
 
         /// <summary>
-        /// Amount (mutez).
+        /// Amount.
         /// </summary>
         public long Amount { get; set; }
 

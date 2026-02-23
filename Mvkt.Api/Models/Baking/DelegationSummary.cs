@@ -13,10 +13,10 @@ namespace Mvkt.Api.Models
         /// <summary>
         /// Current delegated validator
         /// </summary>
-        public ValidatorInfo DelegatedValidator { get; set; }
+        public Alias DelegatedValidator { get; set; }
 
         /// <summary>
-        /// Amount delegated (micro tez)
+        /// Amount delegated
         /// </summary>
         public long DelegatedBalance { get; set; }
 
@@ -36,12 +36,12 @@ namespace Mvkt.Api.Models
         public List<StakedValidatorInfo> StakedValidators { get; set; }
 
         /// <summary>
-        /// Total amount staked across all validators (micro tez)
+        /// Total amount staked across all validators
         /// </summary>
         public long TotalStakedBalance { get; set; }
 
         /// <summary>
-        /// Total rewards earned (delegation + staking) (micro tez)
+        /// Total rewards earned (delegation + staking)
         /// </summary>
         public long TotalRewardsEarned { get; set; }
 

@@ -1,7 +1,7 @@
 namespace Mvkt.Api.Models
 {
     /// <summary>
-    /// A single staking reward event
+    /// A single staking reward event.
     /// </summary>
     public class StakingRewardEvent
     {
@@ -11,7 +11,7 @@ namespace Mvkt.Api.Models
         public int Cycle { get; set; }
 
         /// <summary>
-        /// Reward amount (micro tez)
+        /// Reward amount
         /// </summary>
         public long Amount { get; set; }
 

@@ -25,22 +25,22 @@
         public Alias Staker { get; set; }
 
         /// <summary>
-        /// Initially requested amount (mutez).
+        /// Initially requested amount.
         /// </summary>
         public long RequestedAmount { get; set; }
 
         /// <summary>
-        /// Amount that was restaked back (mutez).
+        /// Amount that was restaked back.
         /// </summary>
         public long RestakedAmount { get; set; }
 
         /// <summary>
-        /// Finalized amount (mutez).
+        /// Finalized amount.
         /// </summary>
         public long FinalizedAmount { get; set; }
 
         /// <summary>
-        /// Slashed amount (mutez).
+        /// Slashed amount.
         /// </summary>
         public long SlashedAmount { get; set; }
 

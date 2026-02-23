@@ -16,7 +16,7 @@ namespace Mvkt.Api.Models
         public string BakerAlias { get; set; }
 
         /// <summary>
-        /// Staked balance (mutez) at this baker
+        /// Staked balance at this baker
         /// </summary>
         public long StakedBalance { get; set; }
     }

@@ -8,10 +8,10 @@ namespace Mvkt.Api.Models
         /// <summary>
         /// Validator information
         /// </summary>
-        public ValidatorInfo Baker { get; set; }
+        public Alias Baker { get; set; }
 
         /// <summary>
-        /// Amount staked with this validator (micro tez)
+        /// Amount staked with this validator
         /// </summary>
         public long StakedBalance { get; set; }
     }
