@@ -2194,34 +2194,30 @@ namespace Mvkt.Api.Repositories
             if (await Accounts.GetAsync(address) is not RawDelegate baker)
                 return null;
 
-            var aggTask = GetBakerStatsAggregate(baker.Id, cycle, cyclesLimit);
-            var aliasTask = Accounts.GetAliasAsync(baker.Id);
-            await Task.WhenAll(aggTask, aliasTask);
-
-            var agg = await aggTask;
-            if (agg == null)
+            var totals = await GetBakerStatsTotals(baker.Id, cycle, cyclesLimit);
+            if (totals == null)
                 return null;
 
-            var alias = await aliasTask;
+            var alias = await Accounts.GetAliasAsync(baker.Id);
 
-            var totalExpectedRewards = agg.TotalActualRewards + agg.TotalMissedBlockRewards + agg.TotalMissedEndorsementRewards;
+            var totalExpectedRewards = totals.TotalActualRewards + totals.TotalMissedBlockRewards + totals.TotalMissedEndorsementRewards;
             var luck = totalExpectedRewards > 0
-                ? Math.Round((double)agg.TotalActualRewards / totalExpectedRewards * 100, 2)
+                ? Math.Round((double)totals.TotalActualRewards / totalExpectedRewards * 100, 2)
                 : 0.0;
 
-            var totalOpportunities = agg.Blocks + agg.MissedBlocks + agg.Endorsements + agg.MissedEndorsements;
-            var successfulOperations = agg.Blocks + agg.Endorsements;
+            var totalOpportunities = totals.Blocks + totals.MissedBlocks + totals.Endorsements + totals.MissedEndorsements;
+            var successfulOperations = totals.Blocks + totals.Endorsements;
             var performance = totalOpportunities > 0
                 ? Math.Round((double)successfulOperations / totalOpportunities * 100, 2)
                 : 0.0;
 
-            var totalExpectedOperations = agg.TotalExpectedBlocks + agg.TotalExpectedEndorsements;
-            var totalActualOperations = agg.Blocks + agg.Endorsements;
+            var totalExpectedOperations = totals.TotalExpectedBlocks + totals.TotalExpectedEndorsements;
+            var totalActualOperations = totals.Blocks + totals.Endorsements;
             var reliability = totalExpectedOperations > 0
                 ? Math.Round((double)totalActualOperations / totalExpectedOperations * 100, 2)
                 : 0.0;
 
-            var kpis = MapAggregateToKpis(agg);
+            var kpis = MapTotalsToKpis(totals);
 
             return new BakerStats
             {
@@ -2230,14 +2226,14 @@ namespace Mvkt.Api.Repositories
                 Performance = performance,
                 Reliability = reliability,
                 TotalExpectedRewards = totalExpectedRewards,
-                TotalActualRewards = agg.TotalActualRewards,
-                Cycle = agg.CyclesUsed == 1 ? agg.SingleCycle : (int?)null,
-                CyclesUsed = agg.CyclesUsed,
+                TotalActualRewards = totals.TotalActualRewards,
+                Cycle = totals.CyclesUsed == 1 ? totals.SingleCycle : (int?)null,
+                CyclesUsed = totals.CyclesUsed,
                 Kpis = kpis
             };
         }
 
-        async Task<BakerStatsAggregate> GetBakerStatsAggregate(int bakerId, int? cycle, int cyclesLimit)
+        async Task<BakerStatsTotals> GetBakerStatsTotals(int bakerId, int? cycle, int cyclesLimit)
         {
             const string selectList = """
                 COUNT(*) AS "CyclesUsed",
@@ -2311,79 +2307,79 @@ namespace Mvkt.Api.Repositories
 
             await using var db = await DataSource.OpenConnectionAsync();
             var sw = Stopwatch.StartNew();
-            var row = await db.QuerySingleOrDefaultAsync<BakerStatsAggregate>(sql, param);
+            var row = await db.QuerySingleOrDefaultAsync<BakerStatsTotals>(sql, param);
             sw.Stop();
             if (Logger?.IsEnabled(LogLevel.Debug) == true)
-                Logger.LogDebug("GetBakerStatsAggregate: bakerId={BakerId}, cycle={Cycle}, cyclesLimit={CyclesLimit}, cyclesReturned={Cycles}, elapsedMs={ElapsedMs}",
+                Logger.LogDebug("GetBakerStatsTotals: bakerId={BakerId}, cycle={Cycle}, cyclesLimit={CyclesLimit}, cyclesReturned={Cycles}, elapsedMs={ElapsedMs}",
                     bakerId, cycle, cyclesLimit, row?.CyclesUsed ?? 0, sw.ElapsedMilliseconds);
             return row?.CyclesUsed > 0 ? row : null;
         }
 
-        static BakerStatsKpis MapAggregateToKpis(BakerStatsAggregate a)
+        static BakerStatsKpis MapTotalsToKpis(BakerStatsTotals totals)
         {
-            var totalBlockAndEndorsement = a.TotalBlockRewards + a.TotalEndorsementRewards;
-            var totalActualRewards = totalBlockAndEndorsement + a.TotalBlockFees;
-            var totalMissedRewards = a.TotalMissedBlockRewards + a.TotalMissedEndorsementRewards + a.TotalMissedBlockFees;
+            var totalBlockAndEndorsement = totals.TotalBlockRewards + totals.TotalEndorsementRewards;
+            var totalActualRewards = totalBlockAndEndorsement + totals.TotalBlockFees;
+            var totalMissedRewards = totals.TotalMissedBlockRewards + totals.TotalMissedEndorsementRewards + totals.TotalMissedBlockFees;
             var kpisExpectedRewards = totalActualRewards + totalMissedRewards;
             var invExpected = kpisExpectedRewards > 0 ? 100.0 / kpisExpectedRewards : 0.0;
             var monetaryPerformance = kpisExpectedRewards > 0 ? (double)totalActualRewards * invExpected : 100.0;
             var luckRatio = kpisExpectedRewards > 0 ? (double)totalActualRewards / kpisExpectedRewards : 1.0;
 
-            var totalIncome = totalActualRewards + a.TotalRevelationRewards + a.TotalAccusationBounties;
-            var extraRewards = a.TotalRevelationRewards + a.TotalBlockFees + a.TotalAccusationBounties;
-            var lostRewards = totalMissedRewards + a.TotalNonceRevelationLosses;
+            var totalIncome = totalActualRewards + totals.TotalRevelationRewards + totals.TotalAccusationBounties;
+            var extraRewards = totals.TotalRevelationRewards + totals.TotalBlockFees + totals.TotalAccusationBounties;
+            var lostRewards = totalMissedRewards + totals.TotalNonceRevelationLosses;
 
             var totalRewards = totalBlockAndEndorsement;
-            var totalActivity = a.Blocks + a.Endorsements;
-            var totalMissedActivity = a.MissedBlocks + a.MissedEndorsements;
+            var totalActivity = totals.Blocks + totals.Endorsements;
+            var totalMissedActivity = totals.MissedBlocks + totals.MissedEndorsements;
             var totalOps = totalActivity + totalMissedActivity;
             var performanceRate = totalOps > 0 ? (double)totalActivity / totalOps * 100.0 : 100.0;
-            var avgRewardsPerCycle = a.CyclesUsed > 0 ? (double)totalRewards / a.CyclesUsed : 0.0;
-            var totalDistributable = a.TotalRewardsDelegated + a.TotalRewardsStakedShared + a.TotalRewardsOwnStake + a.TotalEdgeFees;
+            var avgRewardsPerCycle = totals.CyclesUsed > 0 ? (double)totalRewards / totals.CyclesUsed : 0.0;
+            var totalDistributable = totals.TotalRewardsDelegated + totals.TotalRewardsStakedShared + totals.TotalRewardsOwnStake + totals.TotalEdgeFees;
             var invDistributable = totalDistributable > 0 ? 100.0 / totalDistributable : 0.0;
-            var delegatorSharePercent = (double)a.TotalRewardsDelegated * invDistributable;
-            var coStakerSharePercent = (double)a.TotalRewardsStakedShared * invDistributable;
-            var validatorSharePercent = (double)(a.TotalRewardsOwnStake + a.TotalEdgeFees) * invDistributable;
+            var delegatorSharePercent = (double)totals.TotalRewardsDelegated * invDistributable;
+            var coStakerSharePercent = (double)totals.TotalRewardsStakedShared * invDistributable;
+            var validatorSharePercent = (double)(totals.TotalRewardsOwnStake + totals.TotalEdgeFees) * invDistributable;
 
             return new BakerStatsKpis
             {
                 TotalIncome = totalIncome,
                 ExtraRewards = extraRewards,
                 LostRewards = lostRewards,
-                SlashedRewards = a.SlashedRewards,
-                TotalSlashed = a.TotalSlashed,
-                BlocksBaked = a.Blocks,
-                BlocksProposed = a.Blocks + a.MissedBlocks,
-                TotalBlockRewards = a.TotalBlockRewards,
-                TotalEndorsementRewards = a.TotalEndorsementRewards,
-                EndorsementsMade = a.Endorsements,
-                EndorsementsMissed = a.MissedEndorsements,
-                ExpectedDistribution = a.ExpectedDistribution,
+                SlashedRewards = totals.SlashedRewards,
+                TotalSlashed = totals.TotalSlashed,
+                BlocksBaked = totals.Blocks,
+                BlocksProposed = totals.Blocks + totals.MissedBlocks,
+                TotalBlockRewards = totals.TotalBlockRewards,
+                TotalEndorsementRewards = totals.TotalEndorsementRewards,
+                EndorsementsMade = totals.Endorsements,
+                EndorsementsMissed = totals.MissedEndorsements,
+                ExpectedDistribution = totals.ExpectedDistribution,
                 TechnicalReliability = Math.Round(monetaryPerformance, 2),
                 MonetaryPerformance = Math.Round(monetaryPerformance, 2),
                 FairEfficiency = Math.Round(monetaryPerformance, 2),
                 LuckRatio = Math.Round(luckRatio, 4),
                 TotalExpectedRewards = kpisExpectedRewards,
                 TotalActualRewards = totalActualRewards,
-                MissedRights = a.MissedRights,
+                MissedRights = totals.MissedRights,
                 TotalRewards = totalRewards,
-                TotalBlockFees = a.TotalBlockFees,
-                TotalRevelationRewards = a.TotalRevelationRewards,
-                MissedBlocks = a.MissedBlocks,
-                MissedEndorsements = a.MissedEndorsements,
+                TotalBlockFees = totals.TotalBlockFees,
+                TotalRevelationRewards = totals.TotalRevelationRewards,
+                MissedBlocks = totals.MissedBlocks,
+                MissedEndorsements = totals.MissedEndorsements,
                 PerformanceRate = Math.Round(performanceRate, 2),
                 AvgRewardsPerCycle = Math.Round(avgRewardsPerCycle, 2),
-                TotalRewardsDelegated = a.TotalRewardsDelegated,
-                TotalRewardsStakedShared = a.TotalRewardsStakedShared,
-                TotalRewardsOwnStake = a.TotalRewardsOwnStake,
-                TotalEdgeFees = a.TotalEdgeFees,
+                TotalRewardsDelegated = totals.TotalRewardsDelegated,
+                TotalRewardsStakedShared = totals.TotalRewardsStakedShared,
+                TotalRewardsOwnStake = totals.TotalRewardsOwnStake,
+                TotalEdgeFees = totals.TotalEdgeFees,
                 DelegatorSharePercent = Math.Round(delegatorSharePercent, 2),
                 CoStakerSharePercent = Math.Round(coStakerSharePercent, 2),
                 ValidatorSharePercent = Math.Round(validatorSharePercent, 2)
             };
         }
 
-        sealed class BakerStatsAggregate
+        sealed class BakerStatsTotals
         {
             public int CyclesUsed { get; init; }
             public int SingleCycle { get; init; }
