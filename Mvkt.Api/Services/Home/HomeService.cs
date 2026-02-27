@@ -677,6 +677,8 @@ namespace Mvkt.Api.Services
 
         async Task<NetworkRewardsData> GetNetworkRewardsData(IDbConnection db)
         {
+            var currentCycle = State.Current.Cycle;
+
             const string sql = @"
                 SELECT
                     ""Cycle"",
@@ -685,10 +687,11 @@ namespace Mvkt.Api.Services
                     SUM(""BlockFees"") AS total_block_fees,
                     COUNT(DISTINCT ""BakerId"") AS active_bakers
                 FROM ""BakerCycles""
+                WHERE ""Cycle"" < @currentCycle
                 GROUP BY ""Cycle""
                 ORDER BY ""Cycle"" DESC";
 
-            var rows = (await db.QueryAsync<(int Cycle, long total_block_rewards, long total_endorsement_rewards, long total_block_fees, int active_bakers)>(sql)).ToList();
+            var rows = (await db.QueryAsync<(int Cycle, long total_block_rewards, long total_endorsement_rewards, long total_block_fees, int active_bakers)>(sql, new { currentCycle })).ToList();
 
             long totalBlockRewards = 0, totalEndorsementRewards = 0, totalBlockFees = 0;
             var cycleRewardSummaries = new List<CycleRewardSummary>();
