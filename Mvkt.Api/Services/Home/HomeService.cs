@@ -151,7 +151,6 @@ namespace Mvkt.Api.Services
                     TotalBlockRewards = networkRewardsData.TotalBlockRewards,
                     TotalEndorsementRewards = networkRewardsData.TotalEndorsementRewards,
                     TotalBlockFees = networkRewardsData.TotalBlockFees,
-                    CyclesCount = networkRewardsData.CyclesCount,
                     AverageRewardsPerCycle = networkRewardsData.AverageRewardsPerCycle,
                     CycleRewardSummaries = null
                 };
@@ -687,7 +686,7 @@ namespace Mvkt.Api.Services
                     SUM(""BlockFees"") AS total_block_fees,
                     COUNT(DISTINCT ""BakerId"") AS active_bakers
                 FROM ""BakerCycles""
-                WHERE ""Cycle"" < @currentCycle
+                WHERE ""Cycle"" <= @currentCycle
                 GROUP BY ""Cycle""
                 ORDER BY ""Cycle"" DESC";
 
@@ -713,7 +712,7 @@ namespace Mvkt.Api.Services
             }
 
             var totalRewardsAllTime = totalBlockRewards + totalEndorsementRewards + totalBlockFees;
-            var cyclesCount = rows.Count;
+            var count = rows.Count;
 
             return new NetworkRewardsData
             {
@@ -721,8 +720,7 @@ namespace Mvkt.Api.Services
                 TotalBlockRewards = totalBlockRewards,
                 TotalEndorsementRewards = totalEndorsementRewards,
                 TotalBlockFees = totalBlockFees,
-                CyclesCount = cyclesCount,
-                AverageRewardsPerCycle = cyclesCount > 0 ? (double)totalRewardsAllTime / cyclesCount : 0,
+                AverageRewardsPerCycle = count > 0 ? (double)totalRewardsAllTime / count : 0,
                 CycleRewardSummaries = cycleRewardSummaries
             };
         }

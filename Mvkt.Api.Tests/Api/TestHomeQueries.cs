@@ -31,9 +31,7 @@ namespace Mvkt.Api.Tests.Api
             long totalBlockFees = (long)nr.totalBlockFees;
             Assert.Equal(totalRewardsAllTime, totalBlockRewards + totalEndorsementRewards + totalBlockFees);
 
-            int cyclesCount = (int)nr.cyclesCount;
-            if (cyclesCount > 0)
-                Assert.Equal((double)totalRewardsAllTime / cyclesCount, (double)nr.averageRewardsPerCycle, 0);
+            Assert.True((double)nr.averageRewardsPerCycle >= 0);
         }
 
         [Fact]
@@ -44,10 +42,10 @@ namespace Mvkt.Api.Tests.Api
                 return;
 
             var nr = res.networkRewardsData;
-            int cyclesCount = (int)nr.cyclesCount;
             var cycleRewardSummaries = nr.cycleRewardSummaries as DJsonArray;
             Assert.NotNull(cycleRewardSummaries);
-            Assert.Equal(cyclesCount, cycleRewardSummaries.Count);
+            if (cycleRewardSummaries.Count > 0)
+                Assert.Equal((double)nr.totalRewardsAllTime / cycleRewardSummaries.Count, (double)nr.averageRewardsPerCycle, 0);
 
             if (cycleRewardSummaries.Count > 0)
             {

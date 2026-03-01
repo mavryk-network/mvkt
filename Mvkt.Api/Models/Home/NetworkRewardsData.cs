@@ -6,7 +6,6 @@ namespace Mvkt.Api.Models
         public long TotalBlockRewards { get; set; }
         public long TotalEndorsementRewards { get; set; }
         public long TotalBlockFees { get; set; }
-        public int CyclesCount { get; set; }
         public double AverageRewardsPerCycle { get; set; }
         public List<CycleRewardSummary> CycleRewardSummaries { get; set; } = new();
     }
